@@ -23,12 +23,9 @@ export default function NavbarClient({ user, role }: NavbarClientProps) {
 
   if (!user) {
     return (
-      <nav className="flex items-center gap-3">
-        <Link href="/login">
-          <Button variant="ghost" size="sm">Sign In</Button>
-        </Link>
-        <Link href="/login">
-          <Button size="sm">Get Started</Button>
+      <nav className="flex items-center gap-4">
+        <Link href="/login" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+          Agent Login
         </Link>
       </nav>
     )

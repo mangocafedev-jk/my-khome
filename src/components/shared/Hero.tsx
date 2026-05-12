@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import Button from '@/components/ui/Button'
 import { formatPrice } from '@/lib/utils'
 import type { Listing } from '@/types'
 
@@ -220,26 +218,6 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
         {/* Translation demo */}
         <TranslationDemo step={step} />
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 mt-6 sm:mt-8 w-full max-w-xs sm:max-w-none sm:w-auto">
-          <a href="#listings" className="w-full sm:w-auto">
-            <Button
-              size="lg"
-              className="w-full sm:w-auto bg-[#FF6B35] hover:bg-[#e5601e] active:bg-[#d4581b] text-white"
-            >
-              Browse Listings
-            </Button>
-          </a>
-          <Link href="/login" className="w-full sm:w-auto">
-            <Button
-              variant="secondary"
-              size="lg"
-              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/25"
-            >
-              I&apos;m an Agent
-            </Button>
-          </Link>
-        </div>
       </div>
     </section>
   )
