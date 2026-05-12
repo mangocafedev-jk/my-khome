@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { UserProfile, Agent, Listing, Message } from '@/types'
 import AgentListings from './AgentListings'
 import AgentMessages from './AgentMessages'
@@ -40,7 +41,7 @@ export default function AgentDashboard({ profile, agent, listings, messages }: A
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <span className="text-xl font-bold text-[#0071e3]">MyKHome</span>
+              <Link href="/" className="text-xl font-bold text-[#0071e3] hover:opacity-80 transition-opacity">MyKHome</Link>
               <span className="text-gray-300">|</span>
               <span className="text-sm text-gray-600">공인중개사 대시보드</span>
             </div>
