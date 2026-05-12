@@ -211,7 +211,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-base sm:text-xl font-bold mb-7 sm:mb-10" style={{ color: 'rgba(255,255,255,0.62)' }}>
+        <p className="text-base sm:text-xl font-bold mb-7 sm:mb-10 text-cyan-400">
           The language barrier stops here.
         </p>
 
