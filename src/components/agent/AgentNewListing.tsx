@@ -91,7 +91,11 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
           image_urls: imageUrls,
         }),
       })
-      if (!res.ok) throw new Error('등록에 실패했습니다.')
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        const detail = [json.error, json.details, json.hint].filter(Boolean).join(' | ')
+        throw new Error(detail || '등록에 실패했습니다.')
+      }
       onSuccess()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.')
