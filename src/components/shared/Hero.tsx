@@ -71,9 +71,9 @@ type AnimStep = 0 | 1 | 2 | 3 | 4
 function priceSvg(text: string): string {
   const w = Math.max(80, text.length * 9 + 24)
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="30">
-    <rect x="1" y="1" width="${w - 2}" height="22" rx="11" fill="#FF6B35" stroke="rgba(255,255,255,0.75)" stroke-width="1.5"/>
-    <text x="${w / 2}" y="15.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="10.5" font-weight="700" fill="white">${text}</text>
-    <polygon points="${w / 2 - 5},23 ${w / 2 + 5},23 ${w / 2},30" fill="#FF6B35"/>
+    <rect x="1" y="1" width="${w - 2}" height="22" rx="11" fill="#FFD600" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>
+    <text x="${w / 2}" y="15.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="10.5" font-weight="700" fill="#111111">${text}</text>
+    <polygon points="${w / 2 - 5},23 ${w / 2 + 5},23 ${w / 2},30" fill="#FFD600"/>
   </svg>`
 }
 
@@ -169,7 +169,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
       if (!existing) {
         const script = document.createElement('script')
         script.id = 'gmaps-script'
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=en`
         script.async = true
         script.defer = true
         script.onload = initMap
@@ -204,7 +204,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
 
         {/* Title */}
         <h1
-          className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-3 sm:mb-4 max-w-3xl w-full"
+          className="text-[1.75rem] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-3 sm:mb-4 max-w-3xl w-full break-words"
           style={{ color: 'white' }}
         >
           Find Your K-Home
@@ -261,7 +261,7 @@ function TranslationDemo({ step }: { step: AnimStep }) {
           Renter (English)
         </div>
         <div
-          className="rounded-xl px-3 py-2 text-sm text-white flex items-center"
+          className="rounded-xl px-3 py-2 text-xs sm:text-sm text-white flex items-center"
           style={{ background: 'rgba(59,130,246,0.22)', border: '1px solid rgba(59,130,246,0.30)' }}
         >
           Is this apartment still available?
@@ -276,8 +276,8 @@ function TranslationDemo({ step }: { step: AnimStep }) {
 
       {/* → Auto-translated to Korean */}
       <div style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-xs flex items-center gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
-          <span>→</span>
+        <div className="text-xs flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
+          <span className="flex-shrink-0 mt-px">→</span>
           <span>Auto-translated to Korean</span>
         </div>
       </div>
@@ -288,7 +288,7 @@ function TranslationDemo({ step }: { step: AnimStep }) {
           에이전트 (한국어)
         </div>
         <div
-          className="rounded-xl px-3 py-2 text-sm text-white"
+          className="rounded-xl px-3 py-2 text-xs sm:text-sm text-white"
           style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
         >
           네, 아직 가능합니다! 이번 주 방문 어떠세요?
@@ -297,8 +297,8 @@ function TranslationDemo({ step }: { step: AnimStep }) {
 
       {/* → Agent replies in Korean → Auto-translated to English */}
       <div style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-xs flex items-center gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
-          <span>→</span>
+        <div className="text-xs flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
+          <span className="flex-shrink-0 mt-px">→</span>
           <span>Agent replies in Korean → Auto-translated to English</span>
         </div>
       </div>
@@ -306,7 +306,7 @@ function TranslationDemo({ step }: { step: AnimStep }) {
       {/* English translation */}
       <div style={{ opacity: step >= 4 ? 1 : 0, transition: 'opacity 0.35s' }}>
         <div
-          className="rounded-xl px-3 py-2 text-sm text-white"
+          className="rounded-xl px-3 py-2 text-xs sm:text-sm text-white"
           style={{ background: 'rgba(59,130,246,0.22)', border: '1px solid rgba(59,130,246,0.30)' }}
         >
           Yes, still available! How about a visit this week?
