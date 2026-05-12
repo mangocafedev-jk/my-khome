@@ -181,30 +181,30 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
   }, [listings])
 
   return (
-    <section className="relative overflow-hidden" style={{ height: '90vh', minHeight: 640 }}>
+    <section className="relative overflow-hidden" style={{ height: '90vh', minHeight: 580 }}>
       {/* Map background */}
       <div ref={mapRef} className="absolute inset-0 z-0" />
 
       {/* Dark gradient overlay */}
       <div
         className="absolute inset-0 z-10 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(8,8,28,0.74) 0%, rgba(8,8,28,0.58) 60%, rgba(8,8,28,0.80) 100%)' }}
+        style={{ background: 'linear-gradient(to bottom, rgba(8,8,28,0.45) 0%, rgba(8,8,28,0.32) 60%, rgba(8,8,28,0.52) 100%)' }}
       />
 
       {/* Content */}
-      <div className="relative z-20 h-full flex flex-col items-center justify-center px-4 text-center">
+      <div className="relative z-20 h-full flex flex-col items-center justify-center px-5 sm:px-8 text-center">
         {/* Badge */}
         <div
-          className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium mb-6"
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs sm:text-sm font-medium mb-5 sm:mb-6"
           style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.88)' }}
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
           English-friendly real estate in Seoul
         </div>
 
         {/* Title */}
         <h1
-          className="text-5xl sm:text-6xl font-bold tracking-tight leading-tight mb-4 max-w-3xl"
+          className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-3 sm:mb-4 max-w-3xl w-full"
           style={{ color: 'white' }}
         >
           Find Your K-Home
@@ -213,7 +213,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-xl mb-10" style={{ color: 'rgba(255,255,255,0.62)' }}>
+        <p className="text-base sm:text-xl mb-7 sm:mb-10" style={{ color: 'rgba(255,255,255,0.62)' }}>
           The language barrier stops here.
         </p>
 
@@ -221,20 +221,20 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
         <TranslationDemo step={step} />
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 mt-8">
-          <a href="#listings">
+        <div className="flex flex-col sm:flex-row items-center gap-3 mt-6 sm:mt-8 w-full max-w-xs sm:max-w-none sm:w-auto">
+          <a href="#listings" className="w-full sm:w-auto">
             <Button
               size="lg"
-              className="bg-[#FF6B35] hover:bg-[#e5601e] active:bg-[#d4581b] text-white"
+              className="w-full sm:w-auto bg-[#FF6B35] hover:bg-[#e5601e] active:bg-[#d4581b] text-white"
             >
               Browse Listings
             </Button>
           </a>
-          <Link href="/login">
+          <Link href="/login" className="w-full sm:w-auto">
             <Button
               variant="secondary"
               size="lg"
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/25"
+              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/25"
             >
               I&apos;m an Agent
             </Button>
@@ -248,7 +248,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
 function TranslationDemo({ step }: { step: AnimStep }) {
   return (
     <div
-      className="w-full max-w-xs text-left rounded-2xl p-4 space-y-3"
+      className="w-full max-w-xs sm:max-w-sm text-left rounded-2xl p-3 sm:p-4 space-y-2 sm:space-y-3"
       style={{
         background: 'rgba(8,8,28,0.72)',
         border: '1px solid rgba(255,255,255,0.14)',
