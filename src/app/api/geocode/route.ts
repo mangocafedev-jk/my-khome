@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
   console.error('[geocode] Geocoding API response:', JSON.stringify(geoData, null, 2))
   if (geoData.status !== 'OK' || !geoData.results.length) {
     console.error('[geocode] Geocoding failed — status:', geoData.status, '| error_message:', geoData.error_message ?? 'none')
-    return NextResponse.json({ error: '주소를 찾을 수 없습니다.' }, { status: 422 })
+    const detail = geoData.error_message ? `${geoData.status}: ${geoData.error_message}` : geoData.status
+    return NextResponse.json({ error: `Google API error: ${detail}` }, { status: 422 })
   }
   const { lat, lng } = geoData.results[0].geometry.location
 
@@ -37,7 +38,8 @@ export async function POST(req: NextRequest) {
   }
   if (!placesData.results?.length) {
     console.error('[geocode] No subway station found — Places status:', placesData.status, '| error_message:', placesData.error_message ?? 'none')
-    return NextResponse.json({ error: '인근 지하철역을 찾을 수 없습니다.' }, { status: 422 })
+    const detail = placesData.error_message ? `${placesData.status}: ${placesData.error_message}` : placesData.status
+    return NextResponse.json({ error: `Google API error: ${detail}` }, { status: 422 })
   }
 
   const station = placesData.results[0]
