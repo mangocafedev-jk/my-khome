@@ -52,9 +52,9 @@ const MAP_STYLES = [
   { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
   { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
   { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#7a8fa6' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#FFD600' }] },
   { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#2a2a4a' }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#9ab8d4' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#FFD600' }] },
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
   { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#262650' }] },
   { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a1a38' }] },
@@ -169,7 +169,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
       if (!existing) {
         const script = document.createElement('script')
         script.id = 'gmaps-script'
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=en`
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=en&region=US`
         script.async = true
         script.defer = true
         script.onload = initMap
