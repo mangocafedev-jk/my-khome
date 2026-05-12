@@ -37,6 +37,11 @@ export interface Listing {
   status: ListingStatus
   created_at: string
   image_urls?: string[]
+  address?: string
+  lat?: number | null
+  lng?: number | null
+  station_lat?: number | null
+  station_lng?: number | null
   agents?: Agent
 }
 

@@ -10,6 +10,7 @@ declare global {
       maps: {
         Map: new (div: HTMLElement, opts: object) => object
         Marker: new (opts: object) => object
+        Polyline: new (opts: object) => object
         Size: new (w: number, h: number) => unknown
         Point: new (x: number, y: number) => unknown
       }

@@ -28,7 +28,15 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
     contract: listing.contract,
     duration: String(listing.duration),
     status: listing.status,
+    address: listing.address ?? '',
+    lat: listing.lat ? String(listing.lat) : '',
+    lng: listing.lng ? String(listing.lng) : '',
+    station_lat: listing.station_lat ? String(listing.station_lat) : '',
+    station_lng: listing.station_lng ? String(listing.station_lng) : '',
   })
+  const [geocoding, setGeocoding] = useState(false)
+  const [geocodeError, setGeocodeError] = useState('')
+  const [geocodeDone, setGeocodeDone] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>(listing.image_urls ?? [])
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -36,6 +44,36 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const set = (key: string, value: string) => setForm(f => ({ ...f, [key]: value }))
+
+  const handleGeocode = async () => {
+    if (!form.address.trim()) return
+    setGeocoding(true)
+    setGeocodeError('')
+    setGeocodeDone(false)
+    try {
+      const res = await fetch('/api/geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: form.address }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || '검색 실패')
+      setForm(f => ({
+        ...f,
+        lat: String(data.lat),
+        lng: String(data.lng),
+        subway_station: data.stationName,
+        subway_minutes: String(data.walkingMinutes),
+        station_lat: String(data.stationLat),
+        station_lng: String(data.stationLng),
+      }))
+      setGeocodeDone(true)
+    } catch (err: unknown) {
+      setGeocodeError(err instanceof Error ? err.message : '오류가 발생했습니다.')
+    } finally {
+      setGeocoding(false)
+    }
+  }
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
@@ -79,6 +117,10 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
           size: parseFloat(form.size) || 0,
           subway_minutes: parseInt(form.subway_minutes) || 0,
           duration: parseInt(form.duration) || 12,
+          lat: form.lat ? parseFloat(form.lat) : null,
+          lng: form.lng ? parseFloat(form.lng) : null,
+          station_lat: form.station_lat ? parseFloat(form.station_lat) : null,
+          station_lng: form.station_lng ? parseFloat(form.station_lng) : null,
           image_urls: imageUrls,
         }),
       })
@@ -111,6 +153,35 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
         <p className="text-sm text-gray-500 mb-6">제목을 변경하면 영어로 자동 재번역됩니다.</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Address + geocode */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">매물 주소</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="예: 서울 강남구 삼성동 123-45"
+                value={form.address}
+                onChange={e => { set('address', e.target.value); setGeocodeDone(false) }}
+                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleGeocode())}
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 placeholder-gray-400 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+              />
+              <button
+                type="button"
+                onClick={handleGeocode}
+                disabled={geocoding || !form.address.trim()}
+                className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0071e3] text-white text-sm font-medium hover:bg-[#0077ed] disabled:opacity-50 transition-colors"
+              >
+                {geocoding ? '검색 중…' : '자동 입력'}
+              </button>
+            </div>
+            {geocodeError && <p className="text-xs text-red-500 mt-1">{geocodeError}</p>}
+            {geocodeDone && (
+              <p className="text-xs text-green-600 mt-1">
+                ✓ 지하철역 자동 입력 완료 — {form.subway_station} ({form.subway_minutes}분)
+              </p>
+            )}
+          </div>
+
           {/* Title */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-1.5 block">매물 제목 (한국어)</label>

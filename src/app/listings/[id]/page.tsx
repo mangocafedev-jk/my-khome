@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import Navbar from '@/components/shared/Navbar'
 import ListingGallery from '@/components/listings/ListingGallery'
+import ListingMap from '@/components/listings/ListingMap'
 import ContactForm from '@/components/listings/ContactForm'
 
 const TYPE_LABELS: Record<string, string> = {
@@ -105,6 +106,18 @@ export default async function ListingDetailPage({ params }: PageProps<'/listings
                 <p className="font-semibold text-gray-900">{listing.duration} months</p>
               </div>
             </div>
+
+            {/* Map */}
+            {listing.lat && listing.lng && listing.station_lat && listing.station_lng && (
+              <ListingMap
+                lat={listing.lat}
+                lng={listing.lng}
+                stationName={listing.subway_station}
+                stationLat={listing.station_lat}
+                stationLng={listing.station_lng}
+                walkingMinutes={listing.subway_minutes}
+              />
+            )}
 
             {/* Agent info */}
             {agent && (agent.company || agent.phone) && (
