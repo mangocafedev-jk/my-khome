@@ -36,6 +36,7 @@ export interface Listing {
   duration: number
   status: ListingStatus
   created_at: string
+  image_urls?: string[]
   agents?: Agent
 }
 

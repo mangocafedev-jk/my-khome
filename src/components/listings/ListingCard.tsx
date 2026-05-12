@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { Listing } from '@/types'
 import { formatPrice } from '@/lib/utils'
 import Button from '@/components/ui/Button'
@@ -22,8 +23,18 @@ export default function ListingCard({ listing }: ListingCardProps) {
   return (
     <>
       <article className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 h-48 flex items-center justify-center">
-          <span className="text-5xl">🏠</span>
+        <div className="relative h-48 bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center overflow-hidden">
+          {listing.image_urls?.[0] ? (
+            <Image
+              src={listing.image_urls[0]}
+              alt={listing.title_en || listing.title_kr}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 768px) 100vw, 400px"
+            />
+          ) : (
+            <span className="text-5xl">🏠</span>
+          )}
         </div>
 
         <div className="p-5">

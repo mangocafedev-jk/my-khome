@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import Image from 'next/image'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { createClient } from '@/lib/supabase/client'
 
 interface AgentNewListingProps {
   agentId: string
@@ -24,11 +26,51 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
     contract: '장기' as '단기' | '장기',
     duration: '12',
   })
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const set = (key: string, value: string) =>
     setForm(f => ({ ...f, [key]: value }))
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+
+    setUploading(true)
+    setError('')
+
+    try {
+      const supabase = createClient()
+      const uploaded: string[] = []
+
+      for (const file of files) {
+        const ext = file.name.split('.').pop()
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('listing-images')
+          .upload(path, file, { cacheControl: '3600', upsert: false })
+
+        if (uploadError) throw new Error(uploadError.message)
+
+        const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
+        uploaded.push(data.publicUrl)
+      }
+
+      setImageUrls(prev => [...prev, ...uploaded])
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '이미지 업로드에 실패했습니다.')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const removeImage = (url: string) =>
+    setImageUrls(prev => prev.filter(u => u !== url))
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +88,7 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
           size: parseFloat(form.size) || 0,
           subway_minutes: parseInt(form.subway_minutes) || 0,
           duration: parseInt(form.duration) || 12,
+          image_urls: imageUrls,
         }),
       })
       if (!res.ok) throw new Error('등록에 실패했습니다.')
@@ -73,6 +116,51 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
             required
             className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 placeholder-gray-400 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
           />
+        </div>
+
+        {/* Image upload */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-1.5 block">매물 사진</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={handleImageSelect}
+          />
+
+          {imageUrls.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {imageUrls.map(url => (
+                <div key={url} className="relative aspect-square rounded-xl overflow-hidden group">
+                  <Image
+                    src={url}
+                    alt="매물 사진"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 33vw, 200px"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(url)}
+                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xl"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="w-full rounded-xl border-2 border-dashed border-gray-200 py-6 text-sm text-gray-400 hover:border-[#0071e3] hover:text-[#0071e3] transition-colors disabled:opacity-50"
+          >
+            {uploading ? '업로드 중…' : '+ 사진 추가 (여러 장 선택 가능)'}
+          </button>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
@@ -188,7 +276,7 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading || uploading}>
           {loading ? '등록 중… (영어 번역 포함)' : '매물 등록하기'}
         </Button>
       </form>

@@ -45,9 +45,11 @@ export default function LoginPage() {
       })
       if (error) throw error
 
+      const { data: { user } } = await supabase.auth.getUser()
       const { data: profile } = await supabase
         .from('users')
         .select('role')
+        .eq('id', user!.id)
         .single()
 
       router.push(profile?.role === 'agent' ? '/agent' : '/')
