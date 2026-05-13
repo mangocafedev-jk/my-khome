@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+const KEY = process.env.GOOGLE_MAPS_API_KEY
 
 export async function POST(req: NextRequest) {
   if (!KEY) return NextResponse.json({ error: 'Maps API key not configured' }, { status: 500 })
