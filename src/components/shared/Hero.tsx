@@ -276,7 +276,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
       <FloatingEmojis />
 
       {/* Content */}
-      <div className="relative z-20 h-full flex flex-col items-center justify-start sm:justify-center pt-[80px] sm:pt-0 px-5 sm:px-8 text-center">
+      <div className="relative z-20 h-full flex flex-col items-center justify-start sm:justify-center pt-[16px] sm:pt-0 px-5 sm:px-8 text-center">
         {/* Title */}
         <h1
           className="text-[1.75rem] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-3 sm:mb-4 max-w-3xl w-full break-words"
