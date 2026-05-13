@@ -52,6 +52,67 @@ const MAP_STYLES = [
   { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3d5470' }] },
 ]
 
+const FLOAT_EMOJIS = ['🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🔑']
+
+interface FloatItem {
+  id: number
+  emoji: string
+  size: number
+  left: number
+  duration: number
+  delay: number
+}
+
+function FloatingEmojis() {
+  const [items, setItems] = useState<FloatItem[] | null>(null)
+
+  useEffect(() => {
+    setItems(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: i,
+        emoji: FLOAT_EMOJIS[i % FLOAT_EMOJIS.length],
+        size: 24 + Math.random() * 24,
+        left: 5 + Math.random() * 90,
+        duration: 6 + Math.random() * 8,
+        delay: -(Math.random() * 14),
+      }))
+    )
+  }, [])
+
+  if (!items) return null
+
+  return (
+    <>
+      <style>{`
+        @keyframes floatUpEmoji {
+          0%   { transform: translateY(0);      opacity: 0;    }
+          8%   { opacity: 0.45; }
+          75%  { opacity: 0.45; }
+          100% { transform: translateY(-100vh); opacity: 0;    }
+        }
+      `}</style>
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 15 }}>
+        {items.map(item => (
+          <span
+            key={item.id}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: `${item.left}%`,
+              fontSize: `${item.size}px`,
+              lineHeight: 1,
+              userSelect: 'none',
+              animation: `floatUpEmoji ${item.duration}s linear ${item.delay}s infinite`,
+            }}
+          >
+            {item.emoji}
+          </span>
+        ))}
+      </div>
+    </>
+  )
+}
+
 type AnimStep = 0 | 1 | 2 | 3 | 4
 
 function priceSvg(text: string): string {
@@ -176,6 +237,9 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
         className="absolute inset-0 z-10 pointer-events-none"
         style={{ background: 'linear-gradient(to bottom, rgba(8,8,28,0.45) 0%, rgba(8,8,28,0.32) 60%, rgba(8,8,28,0.52) 100%)' }}
       />
+
+      {/* Floating emoji layer — above overlay, below text */}
+      <FloatingEmojis />
 
       {/* Content */}
       <div className="relative z-20 h-full flex flex-col items-center justify-center px-5 sm:px-8 text-center">
