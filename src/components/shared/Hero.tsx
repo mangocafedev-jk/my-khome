@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
 // ---------------------------------------------------------------------------
-// Slideshow
+// Slideshow (presentational)
 // ---------------------------------------------------------------------------
 
 const HERO_IMAGES = [
@@ -14,29 +14,22 @@ const HERO_IMAGES = [
   'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-4.jpg',
 ]
 
-function HeroSlideshow() {
-  const [current, setCurrent] = useState(0)
-  const [fading, setFading] = useState(false)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFading(true)
-      setTimeout(() => {
-        setCurrent(c => (c + 1) % HERO_IMAGES.length)
-        setFading(false)
-      }, 600)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
-
+function HeroSlideshow({
+  current,
+  fading,
+  onDotClick,
+}: {
+  current: number
+  fading: boolean
+  onDotClick: (i: number) => void
+}) {
   return (
     <>
-      {/* Images — stack all, show active via opacity */}
       {HERO_IMAGES.map((src, i) => (
         <div
           key={src}
           className="absolute inset-0 transition-opacity duration-700"
-          style={{ opacity: i === current && !fading ? 1 : i === current ? 0 : 0 }}
+          style={{ opacity: i === current && !fading ? 1 : 0 }}
         >
           <Image
             src={src}
@@ -57,7 +50,7 @@ function HeroSlideshow() {
         {HERO_IMAGES.map((_, i) => (
           <button
             key={i}
-            onClick={() => { setFading(false); setCurrent(i) }}
+            onClick={() => onDotClick(i)}
             className="rounded-full transition-all duration-300"
             style={{
               width: i === current ? 20 : 7,
@@ -151,7 +144,7 @@ function TypingSubtitle() {
       timer = setTimeout(() => setDeleting(true), 2000)
     } else if (deleting && displayed.length > 0) {
       timer = setTimeout(() => setDisplayed(TYPING_TEXT.slice(0, displayed.length - 1)), 30)
-    } else if (deleting && displayed.length === 0) {
+    } else {
       timer = setTimeout(() => setDeleting(false), 500)
     }
 
@@ -171,10 +164,47 @@ function TypingSubtitle() {
 // ---------------------------------------------------------------------------
 
 export default function Hero() {
+  const [current, setCurrent] = useState(0)
+  const [fading, setFading] = useState(false)
+  const [showDemo, setShowDemo] = useState(false)
+  const advanceCount = useRef(0)
+
+  useEffect(() => {
+    const isDesktop = window.matchMedia('(min-width: 640px)').matches
+    if (isDesktop) setShowDemo(true)
+
+    let timerId: ReturnType<typeof setTimeout>
+
+    function advance() {
+      setFading(true)
+      setTimeout(() => {
+        setCurrent(c => (c + 1) % HERO_IMAGES.length)
+        setFading(false)
+      }, 600)
+    }
+
+    function next() {
+      advance()
+      advanceCount.current += 1
+
+      // Mobile: after cycling through all images once, reveal the demo
+      if (!isDesktop && advanceCount.current === HERO_IMAGES.length) {
+        setShowDemo(true)
+      }
+
+      const stillIntro = !isDesktop && advanceCount.current < HERO_IMAGES.length
+      timerId = setTimeout(next, stillIntro ? 3000 : 5000)
+    }
+
+    // First advance: 3s on mobile intro, 5s on desktop
+    timerId = setTimeout(next, isDesktop ? 5000 : 3000)
+    return () => clearTimeout(timerId)
+  }, [])
+
   return (
     <section className="relative overflow-hidden h-[70vh] sm:h-[90vh] min-h-[480px] sm:min-h-[580px]">
       {/* Slideshow background + overlay + dots */}
-      <HeroSlideshow />
+      <HeroSlideshow current={current} fading={fading} onDotClick={setCurrent} />
 
       {/* Floating emoji layer */}
       <FloatingEmojis />
@@ -192,7 +222,16 @@ export default function Hero() {
 
         <TypingSubtitle />
 
-        <TranslationDemo />
+        {/* Chat demo — hidden on mobile until intro done */}
+        <div
+          style={{
+            opacity: showDemo ? 1 : 0,
+            transition: 'opacity 0.8s ease',
+            pointerEvents: showDemo ? 'auto' : 'none',
+          }}
+        >
+          <TranslationDemo />
+        </div>
       </div>
     </section>
   )
