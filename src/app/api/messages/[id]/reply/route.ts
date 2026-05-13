@@ -16,8 +16,13 @@ export async function POST(
 
   if (!reply_kr) return NextResponse.json({ error: 'Missing reply' }, { status: 400 })
 
-  // Translate agent's Korean reply to English for the user
-  const reply_en = await translateToEnglish(reply_kr)
+  // Translate Korean reply to English; fall back to Korean if DeepL is unavailable
+  let reply_en = reply_kr
+  try {
+    reply_en = await translateToEnglish(reply_kr)
+  } catch (err) {
+    console.error('[reply POST] DeepL translation failed, storing Korean as fallback:', err)
+  }
 
   const { data, error } = await supabase
     .from('messages')

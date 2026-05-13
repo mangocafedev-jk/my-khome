@@ -38,12 +38,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  // Translate user message to Korean for the agent
-  const content_kr = await translateToKorean(content_en)
+  // Translate to Korean; fall back to original English if DeepL is unavailable
+  let content_kr = content_en
+  try {
+    content_kr = await translateToKorean(content_en)
+  } catch (err) {
+    console.error('[messages POST] DeepL translation failed, storing English as fallback:', err)
+  }
 
   const { data, error } = await supabase
     .from('messages')
-    .insert({ listing_id, sender_name, sender_contact, content_en, content_kr })
+    .insert({ listing_id, sender_name, sender_contact, content_en, content_kr, is_read: false })
     .select()
     .single()
 
