@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 interface AddressAutocompleteProps {
   value: string
   onChange: (val: string) => void
-  onPlaceSelect: (address: string) => void
+  onPlaceSelect: (address: string, district?: string) => void
   placeholder?: string
   className?: string
 }
@@ -40,7 +40,7 @@ export default function AddressAutocomplete({
       if (!inputRef.current || !window.google?.maps?.places) return
       const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
         componentRestrictions: { country: 'kr' },
-        fields: ['formatted_address'],
+        fields: ['formatted_address', 'address_components'],
         // No types restriction: 'address' excludes many Korean address formats;
         // letting Google return all geocode results gives best coverage.
       })
@@ -48,9 +48,19 @@ export default function AddressAutocomplete({
         const place = ac.getPlace()
         const addr = place.formatted_address ?? ''
         if (!addr) return
+
+        // Extract 구 name: prefer address_components, fall back to regex on formatted_address
+        const districtComponent = place.address_components?.find(c =>
+          c.long_name.endsWith('구') &&
+          c.types.some(t => t.startsWith('sublocality') || t.startsWith('administrative_area'))
+        )
+        const district =
+          districtComponent?.long_name ??
+          (/([가-힣]+구)/.exec(addr)?.[1])
+
         if (inputRef.current) inputRef.current.value = addr
         onChangeRef.current(addr)
-        onPlaceSelectRef.current(addr)
+        onPlaceSelectRef.current(addr, district)
       })
     }
 

@@ -162,7 +162,11 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
               <AddressAutocomplete
                 value={form.address}
                 onChange={v => { set('address', v); setGeocodeDone(false) }}
-                onPlaceSelect={addr => { set('address', addr); handleGeocode(addr) }}
+                onPlaceSelect={(addr, district) => {
+                set('address', addr)
+                if (district) set('district', DISTRICTS.includes(district) ? district : '기타')
+                handleGeocode(addr)
+              }}
                 placeholder="예: 서울 강남구 삼성동 123-45"
                 className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 placeholder-gray-400 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
               />
