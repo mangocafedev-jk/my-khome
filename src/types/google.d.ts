@@ -9,6 +9,23 @@ declare global {
         Polyline: new (opts: object) => object
         Size: new (w: number, h: number) => unknown
         Point: new (x: number, y: number) => unknown
+        DirectionsService: new () => {
+          route: (
+            request: {
+              origin: { lat: number; lng: number } | string
+              destination: { lat: number; lng: number } | string
+              travelMode: string
+            },
+            callback: (result: unknown, status: string) => void
+          ) => void
+        }
+        DirectionsRenderer: new (opts?: {
+          map?: unknown
+          suppressMarkers?: boolean
+          polylineOptions?: { strokeColor?: string; strokeWeight?: number; strokeOpacity?: number }
+        }) => {
+          setDirections: (result: unknown) => void
+        }
         places: {
           Autocomplete: new (
             input: HTMLInputElement,

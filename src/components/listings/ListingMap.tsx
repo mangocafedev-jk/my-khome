@@ -12,7 +12,6 @@ interface ListingMapProps {
   address?: string
 }
 
-// Light map style — less visual noise than the dark hero style
 const LIGHT_STYLES = [
   { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
@@ -23,15 +22,6 @@ function circleSvg(emoji: string, border: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44">
     <circle cx="22" cy="22" r="20" fill="white" stroke="${border}" stroke-width="2.5"/>
     <text x="22" y="29" text-anchor="middle" font-size="20">${emoji}</text>
-  </svg>`
-}
-
-function walkLabelSvg(minutes: number): string {
-  const text = `Walk ${minutes} min`
-  const w = text.length * 7 + 24
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="26">
-    <rect x="1" y="1" width="${w - 2}" height="22" rx="11" fill="white" stroke="#0071e3" stroke-width="1.5"/>
-    <text x="${w / 2}" y="15.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#0071e3">${text}</text>
   </svg>`
 }
 
@@ -62,65 +52,49 @@ export default function ListingMap({
         styles: LIGHT_STYLES,
       })
 
-      // 🏠 listing marker
-      const homeW = 44
+      // 🏠 property marker
+      const markerW = 44
       new maps.Marker({
         position: { lat, lng },
         map,
-        title: '매물 위치',
+        title: 'Property',
         icon: {
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(circleSvg('🏠', '#0071e3'))}`,
-          scaledSize: new maps.Size(homeW, homeW),
-          anchor: new maps.Point(homeW / 2, homeW / 2),
+          scaledSize: new maps.Size(markerW, markerW),
+          anchor: new maps.Point(markerW / 2, markerW / 2),
         },
       })
 
       // 🚇 station marker
-      const stationW = 44
       new maps.Marker({
         position: { lat: stationLat, lng: stationLng },
         map,
         title: stationName,
         icon: {
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(circleSvg('🚇', '#FF6B35'))}`,
-          scaledSize: new maps.Size(stationW, stationW),
-          anchor: new maps.Point(stationW / 2, stationW / 2),
+          scaledSize: new maps.Size(markerW, markerW),
+          anchor: new maps.Point(markerW / 2, markerW / 2),
         },
       })
 
-      // Dashed polyline
-      new maps.Polyline({
-        path: [{ lat, lng }, { lat: stationLat, lng: stationLng }],
-        geodesic: true,
-        strokeColor: '#0071e3',
-        strokeOpacity: 0,
-        icons: [{
-          icon: {
-            path: 'M 0,-1 0,1',
-            strokeOpacity: 0.8,
-            scale: 3,
-            strokeColor: '#0071e3',
-          },
-          offset: '0',
-          repeat: '14px',
-        }],
+      // Walking route via Directions API
+      const directionsService = new maps.DirectionsService()
+      const directionsRenderer = new maps.DirectionsRenderer({
         map,
+        suppressMarkers: true,
+        polylineOptions: { strokeColor: '#0071e3', strokeWeight: 4, strokeOpacity: 0.7 },
       })
 
-      // Walk time label at midpoint
-      const midLat = (lat + stationLat) / 2
-      const midLng = (lng + stationLng) / 2
-      const labelSvg = walkLabelSvg(walkingMinutes)
-      const labelW = walkingMinutes.toString().length * 7 + ('Walk  min'.length * 7) + 24
-      new maps.Marker({
-        position: { lat: midLat, lng: midLng },
-        map,
-        icon: {
-          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(labelSvg)}`,
-          scaledSize: new maps.Size(labelW, 26),
-          anchor: new maps.Point(labelW / 2, 13),
+      directionsService.route(
+        {
+          origin: { lat: stationLat, lng: stationLng },
+          destination: { lat, lng },
+          travelMode: 'WALKING',
         },
-      })
+        (result, status) => {
+          if (status === 'OK') directionsRenderer.setDirections(result)
+        }
+      )
     }
 
     if (window.google?.maps) {
@@ -150,7 +124,7 @@ export default function ListingMap({
 
   return (
     <div>
-      <div ref={mapRef} className="w-full rounded-2xl overflow-hidden" style={{ height: 280 }} />
+      <div ref={mapRef} className="w-full rounded-2xl overflow-hidden" style={{ height: 300 }} />
       <div className="flex items-center justify-between mt-3">
         <p className="text-xs text-gray-400">
           🏠 Property &nbsp;·&nbsp; 🚇 {stationName} &nbsp;·&nbsp; {walkingMinutes} min walk
@@ -164,6 +138,9 @@ export default function ListingMap({
           Get Directions
         </a>
       </div>
+      <p className="text-xs text-gray-400 mt-1.5">
+        ⚠️ Walking time is estimated by Google Maps and may vary depending on actual route.
+      </p>
     </div>
   )
 }
