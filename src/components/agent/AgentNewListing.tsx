@@ -4,7 +4,6 @@ import { useRef, useState } from 'react'
 import Image from 'next/image'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
-import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import { createClient } from '@/lib/supabase/client'
 
 interface AgentNewListingProps {
@@ -44,8 +43,8 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
   const set = (key: string, value: string) =>
     setForm(f => ({ ...f, [key]: value }))
 
-  const handleGeocode = async (addressOverride?: string) => {
-    const addr = addressOverride ?? form.address
+  const handleGeocode = async () => {
+    const addr = form.address
     if (!addr.trim()) return
     setGeocoding(true)
     setGeocodeError('')
@@ -158,20 +157,17 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
         <div>
           <label className="text-sm font-medium text-gray-700 mb-1.5 block">매물 주소</label>
           <div className="flex gap-2">
-            <AddressAutocomplete
-              value={form.address}
-              onChange={v => { set('address', v); setGeocodeDone(false) }}
-              onPlaceSelect={(addr, district) => {
-                set('address', addr)
-                if (district) set('district', DISTRICTS.includes(district) ? district : '기타')
-                handleGeocode(addr)
-              }}
+            <input
+              type="text"
               placeholder="예: 서울 강남구 삼성동 123-45"
+              value={form.address}
+              onChange={e => { set('address', e.target.value); setGeocodeDone(false) }}
+              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleGeocode())}
               className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 placeholder-gray-400 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
             />
             <button
               type="button"
-              onClick={() => handleGeocode()}
+              onClick={handleGeocode}
               disabled={geocoding || !form.address.trim()}
               className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0071e3] text-white text-sm font-medium hover:bg-[#0077ed] disabled:opacity-50 transition-colors"
             >
@@ -304,24 +300,29 @@ export default function AgentNewListing({ onSuccess }: AgentNewListingProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            id="subway_station"
-            label="인근 지하철역"
-            placeholder="삼성역"
-            value={form.subway_station}
-            onChange={e => set('subway_station', e.target.value)}
-            required
-          />
-          <Input
-            id="subway_minutes"
-            label="도보 소요 시간 (분)"
-            type="number"
-            placeholder="5"
-            value={form.subway_minutes}
-            onChange={e => set('subway_minutes', e.target.value)}
-            required
-          />
+        <div>
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              id="subway_station"
+              label="인근 지하철역"
+              placeholder="삼성역"
+              value={form.subway_station}
+              onChange={e => set('subway_station', e.target.value)}
+              required
+            />
+            <Input
+              id="subway_minutes"
+              label="도보 소요 시간 (분)"
+              type="number"
+              placeholder="5"
+              value={form.subway_minutes}
+              onChange={e => set('subway_minutes', e.target.value)}
+              required
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1.5">
+            자동으로 계산된 값입니다. 오차가 있으면 직접 수정해주세요.
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
