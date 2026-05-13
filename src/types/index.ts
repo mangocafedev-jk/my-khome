@@ -38,6 +38,11 @@ export interface Listing {
   created_at: string
   image_urls?: string[]
   address?: string
+  description?: string | null
+  landmarks?: string | null
+  parking?: boolean
+  furnished?: boolean
+  pets_allowed?: boolean
   lat?: number | null
   lng?: number | null
   station_lat?: number | null

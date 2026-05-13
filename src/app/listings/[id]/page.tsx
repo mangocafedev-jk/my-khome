@@ -64,6 +64,47 @@ export default async function ListingDetailPage({ params }: PageProps<'/listings
               {listing.title_en && listing.title_kr !== listing.title_en && (
                 <p className="text-sm text-gray-400 mt-1">{listing.title_kr}</p>
               )}
+
+              {listing.description && (
+                <p className="text-sm text-gray-600 mt-3 leading-relaxed">{listing.description}</p>
+              )}
+
+              {(listing.landmarks || listing.address) && (
+                <div className="mt-3 space-y-1.5">
+                  {listing.address && (
+                    <p className="text-sm text-gray-500 flex items-start gap-1.5">
+                      <span>📍</span>
+                      <span>{listing.address}</span>
+                    </p>
+                  )}
+                  {listing.landmarks && (
+                    <p className="text-sm text-gray-500 flex items-start gap-1.5">
+                      <span>🗺️</span>
+                      <span>Near: {listing.landmarks}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {(listing.parking || listing.furnished || listing.pets_allowed) && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {listing.parking && (
+                    <span className="inline-flex items-center gap-1 text-sm bg-gray-50 border border-gray-100 px-3 py-1 rounded-full text-gray-700">
+                      🚗 Parking
+                    </span>
+                  )}
+                  {listing.furnished && (
+                    <span className="inline-flex items-center gap-1 text-sm bg-gray-50 border border-gray-100 px-3 py-1 rounded-full text-gray-700">
+                      🛋️ Furnished
+                    </span>
+                  )}
+                  {listing.pets_allowed && (
+                    <span className="inline-flex items-center gap-1 text-sm bg-gray-50 border border-gray-100 px-3 py-1 rounded-full text-gray-700">
+                      🐾 Pets Allowed
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Details grid */}
@@ -90,9 +131,6 @@ export default async function ListingDetailPage({ params }: PageProps<'/listings
                 <p className="text-xs text-gray-500 mb-1">Subway</p>
                 <p className="font-semibold text-gray-900 text-sm">
                   🚇 {listing.subway_station}
-                  {listing.subway_minutes > 0 && (
-                    <span className="font-normal text-gray-500"> ({listing.subway_minutes} min walk)</span>
-                  )}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
@@ -115,7 +153,6 @@ export default async function ListingDetailPage({ params }: PageProps<'/listings
                 stationName={listing.subway_station}
                 stationLat={listing.station_lat}
                 stationLng={listing.station_lng}
-                walkingMinutes={listing.subway_minutes}
                 address={listing.address}
               />
             )}

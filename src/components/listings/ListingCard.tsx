@@ -66,9 +66,21 @@ export default function ListingCard({ listing }: ListingCardProps) {
 
             <div className="mt-3 flex items-center gap-3 text-xs text-gray-400">
               <span>{listing.size}㎡</span>
-              <span>·</span>
-              <span>🚇 {listing.subway_station} ({listing.subway_minutes} min)</span>
+              {listing.subway_station && (
+                <>
+                  <span>·</span>
+                  <span>🚇 {listing.subway_station}</span>
+                </>
+              )}
             </div>
+
+            {(listing.parking || listing.furnished || listing.pets_allowed) && (
+              <div className="mt-2 flex items-center gap-2">
+                {listing.parking && <span className="text-xs bg-gray-50 px-2 py-0.5 rounded-full text-gray-500">🚗 Parking</span>}
+                {listing.furnished && <span className="text-xs bg-gray-50 px-2 py-0.5 rounded-full text-gray-500">🛋️ Furnished</span>}
+                {listing.pets_allowed && <span className="text-xs bg-gray-50 px-2 py-0.5 rounded-full text-gray-500">🐾 Pets OK</span>}
+              </div>
+            )}
           </div>
         </Link>
 

@@ -18,6 +18,8 @@ const DISTRICTS = ['강남구', '마포구', '용산구', '서초구', '송파�
 export default function AgentEditListing({ listing, onClose, onSuccess }: AgentEditListingProps) {
   const [form, setForm] = useState({
     title_kr: listing.title_kr,
+    description: listing.description ?? '',
+    landmarks: listing.landmarks ?? '',
     type: listing.type,
     price: String(listing.price),
     deposit: String(listing.deposit),
@@ -33,6 +35,11 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
     lng: listing.lng ? String(listing.lng) : '',
     station_lat: listing.station_lat ? String(listing.station_lat) : '',
     station_lng: listing.station_lng ? String(listing.station_lng) : '',
+  })
+  const [amenities, setAmenities] = useState({
+    parking: listing.parking ?? false,
+    furnished: listing.furnished ?? false,
+    pets_allowed: listing.pets_allowed ?? false,
   })
   const [geocoding, setGeocoding] = useState(false)
   const [geocodeError, setGeocodeError] = useState('')
@@ -113,6 +120,7 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          ...amenities,
           price: parseInt(form.price) || 0,
           deposit: parseInt(form.deposit) || 0,
           size: parseFloat(form.size) || 0,
@@ -178,7 +186,7 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
             {geocodeError && <p className="text-xs text-red-500 mt-1">{geocodeError}</p>}
             {geocodeDone && (
               <p className="text-xs text-green-600 mt-1">
-                ✓ 지하철역 자동 입력 완료 — {form.subway_station} ({form.subway_minutes}분)
+                ✓ 지하철역 자동 입력 완료 — {form.subway_station}
               </p>
             )}
           </div>
@@ -193,6 +201,49 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
               required
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
             />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">간단한 설명</label>
+            <textarea
+              placeholder="매물에 대한 간단한 설명을 입력해주세요."
+              value={form.description}
+              onChange={e => set('description', e.target.value)}
+              rows={3}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 placeholder-gray-400 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">근처 랜드마크</label>
+            <input
+              type="text"
+              placeholder="예: 홍대, 연남동, 망원한강공원"
+              value={form.landmarks}
+              onChange={e => set('landmarks', e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 placeholder-gray-400 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-3 block">편의시설</label>
+            <div className="flex gap-4">
+              {([
+                { key: 'parking', label: '주차 가능', icon: '🚗' },
+                { key: 'furnished', label: 'Furnished', icon: '🛋️' },
+                { key: 'pets_allowed', label: '반려동물 가능', icon: '🐾' },
+              ] as const).map(({ key, label, icon }) => (
+                <label key={key} className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={amenities[key]}
+                    onChange={e => setAmenities(a => ({ ...a, [key]: e.target.checked }))}
+                    className="w-4 h-4 rounded border-gray-300 text-[#0071e3] focus:ring-[#0071e3]"
+                  />
+                  <span className="text-sm text-gray-700">{icon} {label}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           {/* Status */}
@@ -316,25 +367,15 @@ export default function AgentEditListing({ listing, onClose, onSuccess }: AgentE
 
           {/* Subway */}
           <div>
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                id="edit-subway"
-                label="인근 지하철역"
-                value={form.subway_station}
-                onChange={e => set('subway_station', e.target.value)}
-                required
-              />
-              <Input
-                id="edit-subway-min"
-                label="도보 소요 시간 (분)"
-                type="number"
-                value={form.subway_minutes}
-                onChange={e => set('subway_minutes', e.target.value)}
-                required
-              />
-            </div>
+            <Input
+              id="edit-subway"
+              label="인근 지하철역"
+              value={form.subway_station}
+              onChange={e => set('subway_station', e.target.value)}
+              required
+            />
             <p className="text-xs text-gray-400 mt-1.5">
-              자동으로 계산된 값입니다. 오차가 있으면 직접 수정해주세요.
+              주소 자동 입력 시 자동으로 채워집니다.
             </p>
           </div>
 

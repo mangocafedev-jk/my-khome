@@ -8,7 +8,6 @@ interface ListingMapProps {
   stationName: string
   stationLat: number
   stationLng: number
-  walkingMinutes: number
   address?: string
 }
 
@@ -26,7 +25,7 @@ function circleSvg(emoji: string, border: string): string {
 }
 
 export default function ListingMap({
-  lat, lng, stationName, stationLat, stationLng, walkingMinutes, address,
+  lat, lng, stationName, stationLat, stationLng, address,
 }: ListingMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const initialized = useRef(false)
@@ -120,7 +119,7 @@ export default function ListingMap({
         document.head.appendChild(script)
       }
     }
-  }, [lat, lng, stationLat, stationLng, walkingMinutes])
+  }, [lat, lng, stationLat, stationLng])
 
   const destination = address?.trim() || `${lat},${lng}`
   const directionsUrl =
@@ -134,7 +133,7 @@ export default function ListingMap({
       <div ref={mapRef} className="w-full rounded-2xl overflow-hidden" style={{ height: 300 }} />
       <div className="flex items-center justify-between mt-3">
         <p className="text-xs text-gray-400">
-          🏠 Property &nbsp;·&nbsp; 🚇 {stationName} &nbsp;·&nbsp; {walkingMinutes} min walk
+          🏠 Property &nbsp;·&nbsp; 🚇 {stationName}
         </p>
         <a
           href={directionsUrl}
@@ -145,9 +144,6 @@ export default function ListingMap({
           Get Directions
         </a>
       </div>
-      <p className="text-xs text-gray-400 mt-1.5">
-        ⚠️ Walking time is estimated by Google Maps and may vary depending on actual route.
-      </p>
     </div>
   )
 }
