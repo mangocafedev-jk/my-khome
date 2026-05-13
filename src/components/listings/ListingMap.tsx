@@ -122,7 +122,7 @@ export default function ListingMap({
     }
   }, [lat, lng, stationLat, stationLng, walkingMinutes])
 
-  const destination = address ?? `${lat},${lng}`
+  const destination = address?.trim() || `${lat},${lng}`
   const directionsUrl =
     `https://www.google.com/maps/dir/?api=1` +
     `&origin=${encodeURIComponent(stationName)}` +
