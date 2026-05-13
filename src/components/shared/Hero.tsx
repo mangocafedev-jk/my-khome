@@ -4,19 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { formatPrice } from '@/lib/utils'
 import type { Listing } from '@/types'
 
-declare global {
-  interface Window {
-    google: {
-      maps: {
-        Map: new (div: HTMLElement, opts: object) => object
-        Marker: new (opts: object) => object
-        Polyline: new (opts: object) => object
-        Size: new (w: number, h: number) => unknown
-        Point: new (x: number, y: number) => unknown
-      }
-    }
-  }
-}
 
 const DISTRICT_COORDS: Record<string, { lat: number; lng: number }> = {
   '강남구': { lat: 37.5172, lng: 127.0473 },

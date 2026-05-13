@@ -116,6 +116,7 @@ export default async function ListingDetailPage({ params }: PageProps<'/listings
                 stationLat={listing.station_lat}
                 stationLng={listing.station_lng}
                 walkingMinutes={listing.subway_minutes}
+                address={listing.address}
               />
             )}
 

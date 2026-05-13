@@ -2,20 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 
-declare global {
-  interface Window {
-    google: {
-      maps: {
-        Map: new (div: HTMLElement, opts: object) => object
-        Marker: new (opts: object) => object
-        Polyline: new (opts: object) => object
-        Size: new (w: number, h: number) => unknown
-        Point: new (x: number, y: number) => unknown
-      }
-    }
-  }
-}
-
 interface ListingMapProps {
   lat: number
   lng: number
@@ -23,6 +9,7 @@ interface ListingMapProps {
   stationLat: number
   stationLng: number
   walkingMinutes: number
+  address?: string
 }
 
 // Light map style — less visual noise than the dark hero style
@@ -49,7 +36,7 @@ function walkLabelSvg(minutes: number): string {
 }
 
 export default function ListingMap({
-  lat, lng, stationName, stationLat, stationLng, walkingMinutes,
+  lat, lng, stationName, stationLat, stationLng, walkingMinutes, address,
 }: ListingMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const initialized = useRef(false)
@@ -143,7 +130,7 @@ export default function ListingMap({
       if (!existing) {
         const script = document.createElement('script')
         script.id = 'gmaps-script'
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=en&region=US`
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=en&region=US`
         script.async = true
         script.defer = true
         script.onload = initMap
@@ -154,12 +141,29 @@ export default function ListingMap({
     }
   }, [lat, lng, stationLat, stationLng, walkingMinutes])
 
+  const destination = address ?? `${lat},${lng}`
+  const directionsUrl =
+    `https://www.google.com/maps/dir/?api=1` +
+    `&origin=${encodeURIComponent(stationName)}` +
+    `&destination=${encodeURIComponent(destination)}` +
+    `&travelmode=walking`
+
   return (
     <div>
       <div ref={mapRef} className="w-full rounded-2xl overflow-hidden" style={{ height: 280 }} />
-      <p className="text-xs text-gray-400 mt-2 text-center">
-        🏠 Property &nbsp;·&nbsp; 🚇 {stationName} &nbsp;·&nbsp; {walkingMinutes} min walk
-      </p>
+      <div className="flex items-center justify-between mt-3">
+        <p className="text-xs text-gray-400">
+          🏠 Property &nbsp;·&nbsp; 🚇 {stationName} &nbsp;·&nbsp; {walkingMinutes} min walk
+        </p>
+        <a
+          href={directionsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0071e3] text-white text-xs font-medium hover:bg-[#0077ed] transition-colors shrink-0"
+        >
+          Get Directions
+        </a>
+      </div>
     </div>
   )
 }
