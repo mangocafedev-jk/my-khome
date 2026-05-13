@@ -112,7 +112,7 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
       <div className="mb-6">
         <h2 className="text-2xl font-semibold text-gray-900">Available Listings</h2>
         <p className="text-sm text-gray-400 mt-0.5">
-          {filtered.length} {filtered.length === 1 ? 'property' : 'properties'} · Prices in Korean Won (KRW). Contact agents directly in English.
+          Prices in Korean Won (KRW). Contact agents directly in English.
         </p>
       </div>
 
