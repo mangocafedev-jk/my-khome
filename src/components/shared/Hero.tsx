@@ -276,16 +276,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
       <FloatingEmojis />
 
       {/* Content */}
-      <div className="relative z-20 h-full flex flex-col items-center justify-center px-5 sm:px-8 text-center">
-        {/* Badge */}
-        <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs sm:text-sm font-medium mb-5 sm:mb-6"
-          style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.88)' }}
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-          English-friendly real estate in Seoul
-        </div>
-
+      <div className="relative z-20 h-full flex flex-col items-center justify-center pt-6 sm:pt-0 px-5 sm:px-8 text-center">
         {/* Title */}
         <h1
           className="text-[1.75rem] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-3 sm:mb-4 max-w-3xl w-full break-words"
