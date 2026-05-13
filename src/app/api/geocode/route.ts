@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
   }
 
   const station = placesData.results[0]
-  const stationName: string = station.name
+  const rawName: string = station.name
+  const stationName: string = rawName.endsWith('역') ? rawName : `${rawName}역`
   const stationLat: number = station.geometry.location.lat
   const stationLng: number = station.geometry.location.lng
 
