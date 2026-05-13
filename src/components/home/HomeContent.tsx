@@ -43,7 +43,7 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
       {/* Filter bar */}
       <div
         id="listings"
-        className="flex flex-wrap items-center gap-3 mb-10 p-4 bg-white rounded-2xl shadow-sm border border-gray-100"
+        className="flex flex-col sm:flex-row sm:items-center gap-3 mb-10 p-4 bg-white rounded-2xl shadow-sm border border-gray-100"
       >
         {/* District dropdown */}
         <div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
           <select
             value={district}
             onChange={e => setDistrict(e.target.value)}
-            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
+            className="w-full sm:w-auto text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
           >
             <option value="all">All Districts</option>
             {districts.map(d => (
@@ -61,12 +61,12 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
         </div>
 
         {/* Type pills */}
-        <div className="flex items-center gap-1.5">
+        <div className="grid grid-cols-4 sm:flex items-center gap-1.5 w-full sm:w-auto">
           {TYPE_OPTS.map(opt => (
             <button
               key={opt.value}
               onClick={() => setType(opt.value)}
-              className={`text-sm px-3 py-1.5 rounded-xl font-medium transition-colors ${
+              className={`w-full sm:w-auto text-sm px-3 py-2 rounded-xl font-medium transition-colors text-center ${
                 type === opt.value
                   ? 'bg-[#0071e3] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -78,12 +78,12 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
         </div>
 
         {/* Contract pills */}
-        <div className="flex items-center gap-1.5 sm:ml-auto">
+        <div className="grid grid-cols-3 sm:flex items-center gap-1.5 w-full sm:w-auto sm:ml-auto">
           {CONTRACT_OPTS.map(opt => (
             <button
               key={opt.value}
               onClick={() => setContract(opt.value)}
-              className={`text-sm px-3 py-1.5 rounded-xl font-medium transition-colors ${
+              className={`w-full sm:w-auto text-sm px-3 py-2 rounded-xl font-medium transition-colors text-center ${
                 contract === opt.value
                   ? 'bg-[#0071e3] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
