@@ -1,66 +1,85 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { formatPrice } from '@/lib/utils'
-import type { Listing } from '@/types'
+import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
+// ---------------------------------------------------------------------------
+// Slideshow
+// ---------------------------------------------------------------------------
 
-const DISTRICT_COORDS: Record<string, { lat: number; lng: number }> = {
-  '강남구': { lat: 37.5172, lng: 127.0473 },
-  '서초구': { lat: 37.4837, lng: 127.0324 },
-  '마포구': { lat: 37.5636, lng: 126.9089 },
-  '용산구': { lat: 37.5324, lng: 126.9946 },
-  '이태원': { lat: 37.5340, lng: 126.9943 },
-  '송파구': { lat: 37.5145, lng: 127.1059 },
-  '종로구': { lat: 37.5740, lng: 126.9790 },
-  '중구':   { lat: 37.5641, lng: 126.9979 },
-  '노원구': { lat: 37.6542, lng: 127.0568 },
-  '은평구': { lat: 37.6029, lng: 126.9292 },
-  '성북구': { lat: 37.5894, lng: 127.0167 },
-  '광진구': { lat: 37.5386, lng: 127.0824 },
-  '동대문구': { lat: 37.5744, lng: 127.0396 },
-  '성동구': { lat: 37.5511, lng: 127.0410 },
-  '영등포구': { lat: 37.5263, lng: 126.8961 },
-  '구로구': { lat: 37.4955, lng: 126.8876 },
-  '서대문구': { lat: 37.5794, lng: 126.9368 },
-  '동작구': { lat: 37.5124, lng: 126.9393 },
-  '관악구': { lat: 37.4784, lng: 126.9516 },
-  '강서구': { lat: 37.5509, lng: 126.8496 },
+const HERO_IMAGES = [
+  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-1.jpg',
+  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-2.jpg',
+  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-3.jpg',
+  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-4.jpg',
+]
+
+function HeroSlideshow() {
+  const [current, setCurrent] = useState(0)
+  const [fading, setFading] = useState(false)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFading(true)
+      setTimeout(() => {
+        setCurrent(c => (c + 1) % HERO_IMAGES.length)
+        setFading(false)
+      }, 600)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <>
+      {/* Images — stack all, show active via opacity */}
+      {HERO_IMAGES.map((src, i) => (
+        <div
+          key={src}
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{ opacity: i === current && !fading ? 1 : i === current ? 0 : 0 }}
+        >
+          <Image
+            src={src}
+            alt={`Seoul hero ${i + 1}`}
+            fill
+            priority={i === 0}
+            className="object-cover"
+            sizes="100vw"
+          />
+        </div>
+      ))}
+
+      {/* Dark overlay */}
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.55)' }} />
+
+      {/* Dot navigation */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2" style={{ zIndex: 25 }}>
+        {HERO_IMAGES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => { setFading(false); setCurrent(i) }}
+            className="rounded-full transition-all duration-300"
+            style={{
+              width: i === current ? 20 : 7,
+              height: 7,
+              background: i === current ? 'white' : 'rgba(255,255,255,0.45)',
+            }}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
+    </>
+  )
 }
 
-const LANDMARKS = [
-  { name: 'Hongdae', lat: 37.5560, lng: 126.9237 },
-  { name: 'Itaewon', lat: 37.5340, lng: 126.9943 },
-  { name: 'Gangnam', lat: 37.4979, lng: 127.0276 },
-]
-
-const MAP_STYLES = [
-  { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
-  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#FFD600' }] },
-  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#2a2a4a' }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#FFD600' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#262650' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a1a38' }] },
-  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#607080' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3a3a6a' }] },
-  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#b0a060' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1b2e' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3d5470' }] },
-]
+// ---------------------------------------------------------------------------
+// Floating emojis
+// ---------------------------------------------------------------------------
 
 const FLOAT_EMOJIS = ['🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🔑']
 
 interface FloatItem {
-  id: number
-  emoji: string
-  size: number
-  left: number
-  duration: number
-  delay: number
+  id: number; emoji: string; size: number; left: number; duration: number; delay: number
 }
 
 function FloatingEmojis() {
@@ -113,6 +132,10 @@ function FloatingEmojis() {
   )
 }
 
+// ---------------------------------------------------------------------------
+// Typing subtitle
+// ---------------------------------------------------------------------------
+
 const TYPING_TEXT = 'The language barrier stops here.'
 
 function TypingSubtitle() {
@@ -123,16 +146,12 @@ function TypingSubtitle() {
     let timer: ReturnType<typeof setTimeout>
 
     if (!deleting && displayed.length < TYPING_TEXT.length) {
-      // typing
       timer = setTimeout(() => setDisplayed(TYPING_TEXT.slice(0, displayed.length + 1)), 55)
     } else if (!deleting && displayed.length === TYPING_TEXT.length) {
-      // pause before delete
       timer = setTimeout(() => setDeleting(true), 2000)
     } else if (deleting && displayed.length > 0) {
-      // deleting
       timer = setTimeout(() => setDisplayed(TYPING_TEXT.slice(0, displayed.length - 1)), 30)
     } else if (deleting && displayed.length === 0) {
-      // pause before retype
       timer = setTimeout(() => setDeleting(false), 500)
     }
 
@@ -147,118 +166,21 @@ function TypingSubtitle() {
   )
 }
 
-function priceSvg(text: string): string {
-  const w = Math.max(80, text.length * 9 + 24)
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="30">
-    <rect x="1" y="1" width="${w - 2}" height="22" rx="11" fill="#FFD600" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>
-    <text x="${w / 2}" y="15.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="10.5" font-weight="700" fill="#111111">${text}</text>
-    <polygon points="${w / 2 - 5},23 ${w / 2 + 5},23 ${w / 2},30" fill="#FFD600"/>
-  </svg>`
-}
+// ---------------------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------------------
 
-function landmarkSvg(name: string): string {
-  const w = name.length * 8 + 24
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="24">
-    <rect x="0" y="0" width="${w}" height="22" rx="4" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.30)" stroke-width="1"/>
-    <text x="${w / 2}" y="15" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="rgba(255,255,255,0.85)">${name}</text>
-  </svg>`
-}
-
-export default function Hero({ listings = [] }: { listings?: Listing[] }) {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapReady = useRef(false)
-
-  // Google Maps initialization
-  useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    if (!apiKey || !mapRef.current || mapReady.current) return
-
-    function initMap() {
-      if (!mapRef.current || !window.google?.maps) return
-      mapReady.current = true
-
-      const { maps } = window.google
-      const map = new maps.Map(mapRef.current, {
-        center: { lat: 37.5665, lng: 126.9780 },
-        zoom: 12,
-        disableDefaultUI: true,
-        gestureHandling: 'none',
-        clickableIcons: false,
-        styles: MAP_STYLES,
-      })
-
-      // Price pins
-      const seen: Record<string, number> = {}
-      listings.forEach(listing => {
-        const base = DISTRICT_COORDS[listing.district]
-        if (!base) return
-        seen[listing.district] = (seen[listing.district] ?? 0) + 1
-        const angle = seen[listing.district] * 1.9
-        const r = seen[listing.district] > 1 ? 0.006 : 0
-        const pos = { lat: base.lat + r * Math.sin(angle), lng: base.lng + r * Math.cos(angle) }
-        const text = formatPrice(listing.price)
-        const w = Math.max(80, text.length * 9 + 24)
-        new maps.Marker({
-          position: pos,
-          map,
-          icon: {
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(priceSvg(text))}`,
-            scaledSize: new maps.Size(w, 30),
-            anchor: new maps.Point(w / 2, 30),
-          },
-        })
-      })
-
-      // Landmark labels
-      LANDMARKS.forEach(lm => {
-        const w = lm.name.length * 8 + 24
-        new maps.Marker({
-          position: { lat: lm.lat, lng: lm.lng },
-          map,
-          icon: {
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(landmarkSvg(lm.name))}`,
-            scaledSize: new maps.Size(w, 24),
-            anchor: new maps.Point(w / 2, 11),
-          },
-        })
-      })
-    }
-
-    if (window.google?.maps) {
-      initMap()
-    } else {
-      const existing = document.getElementById('gmaps-script')
-      if (!existing) {
-        const script = document.createElement('script')
-        script.id = 'gmaps-script'
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=en&region=US`
-        script.async = true
-        script.defer = true
-        script.onload = initMap
-        document.head.appendChild(script)
-      } else {
-        existing.addEventListener('load', initMap)
-      }
-    }
-  }, [listings])
-
+export default function Hero() {
   return (
     <section className="relative overflow-hidden h-[70vh] sm:h-[90vh] min-h-[480px] sm:min-h-[580px]">
-      {/* Map background */}
-      <div ref={mapRef} className="absolute inset-0 z-0" />
+      {/* Slideshow background + overlay + dots */}
+      <HeroSlideshow />
 
-      {/* Dark gradient overlay */}
-      <div
-        className="absolute inset-0 z-10 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(8,8,28,0.45) 0%, rgba(8,8,28,0.32) 60%, rgba(8,8,28,0.52) 100%)' }}
-      />
-
-      {/* Floating emoji layer — above overlay, below text */}
+      {/* Floating emoji layer */}
       <FloatingEmojis />
 
       {/* Content */}
       <div className="relative z-20 h-full flex flex-col items-center justify-start sm:justify-center pt-[16px] sm:pt-0 px-5 sm:px-8 text-center">
-        {/* Title */}
         <h1
           className="text-[1.75rem] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-3 sm:mb-4 max-w-3xl w-full break-words"
           style={{ color: 'white' }}
@@ -268,16 +190,17 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
           <span style={{ color: '#FF6B35' }}>in Your Language.</span>
         </h1>
 
-        {/* Subtitle */}
         <TypingSubtitle />
 
-        {/* Translation demo */}
         <TranslationDemo />
-
       </div>
     </section>
   )
 }
+
+// ---------------------------------------------------------------------------
+// iMessage translation demo
+// ---------------------------------------------------------------------------
 
 type DemoStep = 0 | 1 | 2 | 3 | 4 | 5
 
@@ -285,7 +208,6 @@ function TranslationDemo() {
   const [step, setStep] = useState<DemoStep>(0)
 
   useEffect(() => {
-    // 0: renter typing, 1: kr tag, 2: agent dots, 3: agent msg + en tag, 4: en reply, 5: pause
     const durations = [1200, 600, 1300, 700, 700, 3000]
     let current = 0
     let timer: ReturnType<typeof setTimeout>
@@ -322,9 +244,7 @@ function TranslationDemo() {
           className="flex flex-col items-center mb-3 pb-3"
           style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-base mb-1">
-            🏢
-          </div>
+          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-base mb-1">🏢</div>
           <p className="text-white font-semibold text-sm leading-tight">Korean Agent</p>
           <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.38)' }}>via MyKHome</p>
         </div>
@@ -343,17 +263,14 @@ function TranslationDemo() {
             </div>
           </div>
 
-          {/* Auto-translated to Korean tag */}
-          <div
-            className="flex justify-end"
-            style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.3s' }}
-          >
+          {/* Auto-translated to Korean */}
+          <div className="flex justify-end" style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.3s' }}>
             <span className="text-[10px] font-medium" style={{ color: 'rgba(52,199,89,0.9)' }}>
               🌐 Auto-translated to Korean
             </span>
           </div>
 
-          {/* Spacer keeps layout stable while dots / message swap */}
+          {/* Agent typing dots or message */}
           <div className="flex justify-start" style={{ minHeight: 36 }}>
             {step === 2 && (
               <div
@@ -382,21 +299,15 @@ function TranslationDemo() {
             )}
           </div>
 
-          {/* Auto-translated to English tag */}
-          <div
-            className="flex justify-start"
-            style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.3s' }}
-          >
+          {/* Auto-translated to English */}
+          <div className="flex justify-start" style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.3s' }}>
             <span className="text-[10px] font-medium" style={{ color: 'rgba(52,199,89,0.9)' }}>
               🌐 Auto-translated to English
             </span>
           </div>
 
           {/* English reply → right, blue */}
-          <div
-            className="flex justify-end"
-            style={{ opacity: step >= 4 ? 1 : 0, transition: 'opacity 0.3s' }}
-          >
+          <div className="flex justify-end" style={{ opacity: step >= 4 ? 1 : 0, transition: 'opacity 0.3s' }}>
             <div
               className="text-white text-sm px-3 py-2"
               style={{ background: '#0a84ff', borderRadius: '18px 18px 4px 18px', maxWidth: '85%' }}
