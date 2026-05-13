@@ -287,11 +287,11 @@ function TranslationDemo({ step }: { step: AnimStep }) {
     >
       {/* User message */}
       <div>
-        <div className="text-xs mb-1.5 font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
+        <div className="text-[11px] mb-1.5 font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
           Renter (English)
         </div>
         <div
-          className="rounded-xl px-3 py-2 text-xs sm:text-sm text-white flex items-center"
+          className="rounded-xl px-3 py-2 text-sm text-white flex items-center"
           style={{ background: 'rgba(59,130,246,0.22)', border: '1px solid rgba(59,130,246,0.30)' }}
         >
           Is this apartment still available?
@@ -306,7 +306,7 @@ function TranslationDemo({ step }: { step: AnimStep }) {
 
       {/* → Auto-translated to Korean */}
       <div style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-xs flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
+        <div className="text-[11px] flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
           <span className="flex-shrink-0 mt-px">→</span>
           <span>Auto-translated to Korean</span>
         </div>
@@ -314,11 +314,11 @@ function TranslationDemo({ step }: { step: AnimStep }) {
 
       {/* Agent Korean reply */}
       <div style={{ opacity: step >= 2 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-xs mb-1.5 font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
+        <div className="text-[11px] mb-1.5 font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
           에이전트 (한국어)
         </div>
         <div
-          className="rounded-xl px-3 py-2 text-xs sm:text-sm text-white"
+          className="rounded-xl px-3 py-2 text-sm text-white"
           style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
         >
           네, 아직 가능합니다! 이번 주 방문 어떠세요?
@@ -327,7 +327,7 @@ function TranslationDemo({ step }: { step: AnimStep }) {
 
       {/* → Agent replies in Korean → Auto-translated to English */}
       <div style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-xs flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
+        <div className="text-[11px] flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
           <span className="flex-shrink-0 mt-px">→</span>
           <span>Agent replies in Korean → Auto-translated to English</span>
         </div>
@@ -336,7 +336,7 @@ function TranslationDemo({ step }: { step: AnimStep }) {
       {/* English translation */}
       <div style={{ opacity: step >= 4 ? 1 : 0, transition: 'opacity 0.35s' }}>
         <div
-          className="rounded-xl px-3 py-2 text-xs sm:text-sm text-white"
+          className="rounded-xl px-3 py-2 text-sm text-white"
           style={{ background: 'rgba(59,130,246,0.22)', border: '1px solid rgba(59,130,246,0.30)' }}
         >
           Yes, still available! How about a visit this week?
