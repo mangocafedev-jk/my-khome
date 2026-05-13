@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
   const stationLng: number = station.geometry.location.lng
 
   // 3. Walking distance (Distance Matrix)
+  console.error('[geocode] Distance Matrix input — origin:', `${lat},${lng}`, '| destination:', `${stationLat},${stationLng}`, '| station:', stationName)
   const distRes = await fetch(
     `https://maps.googleapis.com/maps/api/distancematrix/json` +
     `?origins=${lat},${lng}&destinations=${stationLat},${stationLng}&mode=walking&key=${KEY}&language=ko`
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
   console.error('[geocode] Distance Matrix API response:', JSON.stringify(distData, null, 2))
   const element = distData.rows?.[0]?.elements?.[0]
   const walkingSeconds: number = element?.status === 'OK' ? element.duration.value : 0
+  console.error('[geocode] element.status:', element?.status, '| duration.value (seconds):', element?.duration?.value, '| distance.value (meters):', element?.distance?.value, '| walkingMinutes:', Math.max(1, Math.round(walkingSeconds / 60)))
   const walkingMinutes = Math.max(1, Math.round(walkingSeconds / 60))
 
   return NextResponse.json({ lat, lng, stationName, stationLat, stationLng, walkingMinutes })
