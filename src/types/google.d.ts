@@ -37,6 +37,7 @@ declare global {
           ) => {
             addListener: (event: string, callback: () => void) => void
             getPlace: () => {
+              name?: string
               formatted_address?: string
               geometry?: { location: { lat: () => number; lng: () => number } }
               address_components?: Array<{

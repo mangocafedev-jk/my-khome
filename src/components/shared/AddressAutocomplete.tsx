@@ -40,14 +40,22 @@ export default function AddressAutocomplete({
       if (!inputRef.current || !window.google?.maps?.places) return
       const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
         componentRestrictions: { country: 'kr' },
-        fields: ['formatted_address', 'address_components'],
+        fields: ['name', 'formatted_address', 'address_components'],
         // No types restriction: 'address' excludes many Korean address formats;
         // letting Google return all geocode results gives best coverage.
       })
       ac.addListener('place_changed', () => {
         const place = ac.getPlace()
+
+        console.log('[AddressAutocomplete] place.name:', place.name)
+        console.log('[AddressAutocomplete] place.formatted_address:', place.formatted_address)
+        console.log('[AddressAutocomplete] place.address_components:', place.address_components)
+
         const addr = place.formatted_address ?? ''
-        if (!addr) return
+        if (!addr) {
+          console.warn('[AddressAutocomplete] formatted_address is empty — place may not have loaded correctly')
+          return
+        }
 
         // Extract 구 name: prefer address_components, fall back to regex on formatted_address
         const districtComponent = place.address_components?.find(c =>
@@ -57,6 +65,8 @@ export default function AddressAutocomplete({
         const district =
           districtComponent?.long_name ??
           (/([가-힣]+구)/.exec(addr)?.[1])
+
+        console.log('[AddressAutocomplete] → setting input to:', addr, '| district:', district)
 
         if (inputRef.current) inputRef.current.value = addr
         onChangeRef.current(addr)
