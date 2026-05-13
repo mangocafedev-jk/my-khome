@@ -49,7 +49,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         {listing.district && (
           <div className="absolute top-3 left-3">
             <span className="text-xs font-semibold text-white px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.22)' }}>
+              style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
               {listing.district}
             </span>
           </div>
@@ -59,7 +59,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         {listing.subway_station && (
           <div className="absolute top-3 right-3">
             <span className="text-xs font-semibold text-white px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.22)' }}>
+              style={{ background: 'rgba(0,113,227,0.85)', backdropFilter: 'blur(4px)' }}>
               🚇 {listing.subway_station}
             </span>
           </div>
@@ -79,7 +79,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <div className="absolute bottom-3 left-3">
           {priceValue && (
             <span className="text-xs font-bold text-white px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(0,113,227,0.88)', backdropFilter: 'blur(6px)' }}>
+              style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
               {TYPE_LABELS[listing.type] ?? listing.type} · {formatPrice(priceValue)}
             </span>
           )}
@@ -89,7 +89,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <div className="absolute bottom-3 right-3">
           {listing.furnished && (
             <span className="text-xs font-semibold text-white px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.22)' }}>
+              style={{ background: 'rgba(52,199,89,0.85)', backdropFilter: 'blur(4px)' }}>
               🛋️ Furnished
             </span>
           )}
