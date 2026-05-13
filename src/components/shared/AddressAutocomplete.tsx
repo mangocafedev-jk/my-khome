@@ -18,8 +18,10 @@ export default function AddressAutocomplete({
   className,
 }: AddressAutocompleteProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const onChangeRef = useRef(onChange)
   const onPlaceSelectRef = useRef(onPlaceSelect)
 
+  useEffect(() => { onChangeRef.current = onChange })
   useEffect(() => { onPlaceSelectRef.current = onPlaceSelect })
 
   useEffect(() => {
@@ -36,7 +38,11 @@ export default function AddressAutocomplete({
       ac.addListener('place_changed', () => {
         const place = ac.getPlace()
         const addr = place.formatted_address ?? ''
-        if (addr) onPlaceSelectRef.current(addr)
+        if (!addr) return
+        // Immediately sync DOM value so React's controlled input shows formatted_address
+        if (inputRef.current) inputRef.current.value = addr
+        onChangeRef.current(addr)       // update React state (value prop)
+        onPlaceSelectRef.current(addr)  // trigger geocoding in parent
       })
     }
 
