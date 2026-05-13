@@ -113,6 +113,40 @@ function FloatingEmojis() {
   )
 }
 
+const TYPING_TEXT = 'The language barrier stops here.'
+
+function TypingSubtitle() {
+  const [displayed, setDisplayed] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+
+    if (!deleting && displayed.length < TYPING_TEXT.length) {
+      // typing
+      timer = setTimeout(() => setDisplayed(TYPING_TEXT.slice(0, displayed.length + 1)), 55)
+    } else if (!deleting && displayed.length === TYPING_TEXT.length) {
+      // pause before delete
+      timer = setTimeout(() => setDeleting(true), 2000)
+    } else if (deleting && displayed.length > 0) {
+      // deleting
+      timer = setTimeout(() => setDisplayed(TYPING_TEXT.slice(0, displayed.length - 1)), 30)
+    } else if (deleting && displayed.length === 0) {
+      // pause before retype
+      timer = setTimeout(() => setDeleting(false), 500)
+    }
+
+    return () => clearTimeout(timer)
+  }, [displayed, deleting])
+
+  return (
+    <p className="text-base sm:text-xl font-bold mb-7 sm:mb-10 text-white">
+      {displayed}
+      <span className="animate-pulse">|</span>
+    </p>
+  )
+}
+
 type AnimStep = 0 | 1 | 2 | 3 | 4
 
 function priceSvg(text: string): string {
@@ -263,9 +297,7 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-base sm:text-xl font-bold mb-7 sm:mb-10 text-cyan-400">
-          The language barrier stops here.
-        </p>
+        <TypingSubtitle />
 
         {/* Translation demo */}
         <TranslationDemo step={step} />
