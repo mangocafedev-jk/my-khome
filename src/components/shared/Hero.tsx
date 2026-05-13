@@ -147,8 +147,6 @@ function TypingSubtitle() {
   )
 }
 
-type AnimStep = 0 | 1 | 2 | 3 | 4
-
 function priceSvg(text: string): string {
   const w = Math.max(80, text.length * 9 + 24)
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="30">
@@ -169,23 +167,6 @@ function landmarkSvg(name: string): string {
 export default function Hero({ listings = [] }: { listings?: Listing[] }) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapReady = useRef(false)
-  const [step, setStep] = useState<AnimStep>(0)
-
-  // Translation demo animation loop
-  useEffect(() => {
-    const durations: number[] = [1800, 700, 2000, 700, 2400]
-    let current = 0
-    let timer: ReturnType<typeof setTimeout>
-
-    function tick() {
-      current = (current + 1) % 5
-      setStep(current as AnimStep)
-      timer = setTimeout(tick, durations[current])
-    }
-
-    timer = setTimeout(tick, durations[0])
-    return () => clearTimeout(timer)
-  }, [])
 
   // Google Maps initialization
   useEffect(() => {
@@ -291,80 +272,141 @@ export default function Hero({ listings = [] }: { listings?: Listing[] }) {
         <TypingSubtitle />
 
         {/* Translation demo */}
-        <TranslationDemo step={step} />
+        <TranslationDemo />
 
       </div>
     </section>
   )
 }
 
-function TranslationDemo({ step }: { step: AnimStep }) {
+type DemoStep = 0 | 1 | 2 | 3 | 4 | 5
+
+function TranslationDemo() {
+  const [step, setStep] = useState<DemoStep>(0)
+
+  useEffect(() => {
+    // 0: renter typing, 1: kr tag, 2: agent dots, 3: agent msg + en tag, 4: en reply, 5: pause
+    const durations = [1200, 600, 1300, 700, 700, 3000]
+    let current = 0
+    let timer: ReturnType<typeof setTimeout>
+
+    function tick() {
+      current = (current + 1) % 6
+      setStep(current as DemoStep)
+      timer = setTimeout(tick, durations[current])
+    }
+
+    timer = setTimeout(tick, durations[0])
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
-    <div
-      className="w-full max-w-xs sm:max-w-sm text-left rounded-2xl p-3 sm:p-4 space-y-2 sm:space-y-3"
-      style={{
-        background: 'rgba(8,8,28,0.72)',
-        border: '1px solid rgba(255,255,255,0.14)',
-        backdropFilter: 'blur(14px)',
-      }}
-    >
-      {/* User message */}
-      <div>
-        <div className="text-[11px] mb-1.5 font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
-          Renter (English)
-        </div>
+    <>
+      <style>{`
+        @keyframes dotBounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30%            { transform: translateY(-5px); }
+        }
+      `}</style>
+      <div
+        className="w-full max-w-[272px] sm:max-w-xs text-left"
+        style={{
+          background: '#1c1c1e',
+          borderRadius: '32px',
+          border: '1px solid rgba(255,255,255,0.15)',
+          padding: '16px',
+        }}
+      >
+        {/* Header */}
         <div
-          className="rounded-xl px-3 py-2 text-sm text-white flex items-center"
-          style={{ background: 'rgba(59,130,246,0.22)', border: '1px solid rgba(59,130,246,0.30)' }}
+          className="flex flex-col items-center mb-3 pb-3"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
-          Is this apartment still available?
-          {step === 0 && (
-            <span
-              className="ml-1 inline-block w-0.5 h-3.5 animate-pulse"
-              style={{ background: 'rgba(255,255,255,0.7)' }}
-            />
-          )}
+          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-base mb-1">
+            🏢
+          </div>
+          <p className="text-white font-semibold text-sm leading-tight">Korean Agent</p>
+          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.38)' }}>via MyKHome</p>
         </div>
-      </div>
 
-      {/* → Auto-translated to Korean */}
-      <div style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-[11px] flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
-          <span className="flex-shrink-0 mt-px">→</span>
-          <span>Auto-translated to Korean</span>
-        </div>
-      </div>
+        {/* Messages */}
+        <div className="space-y-1">
 
-      {/* Agent Korean reply */}
-      <div style={{ opacity: step >= 2 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-[11px] mb-1.5 font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
-          에이전트 (한국어)
-        </div>
-        <div
-          className="rounded-xl px-3 py-2 text-sm text-white"
-          style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
-        >
-          네, 아직 가능합니다! 이번 주 방문 어떠세요?
-        </div>
-      </div>
+          {/* Renter → right, blue */}
+          <div className="flex justify-end">
+            <div
+              className="text-white text-sm px-3 py-2"
+              style={{ background: '#0a84ff', borderRadius: '18px 18px 4px 18px', maxWidth: '85%' }}
+            >
+              Is this still available?
+              {step === 0 && <span className="ml-0.5 animate-pulse">|</span>}
+            </div>
+          </div>
 
-      {/* → Agent replies in Korean → Auto-translated to English */}
-      <div style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div className="text-[11px] flex items-start gap-1.5 font-medium" style={{ color: 'rgba(52,211,153,0.85)' }}>
-          <span className="flex-shrink-0 mt-px">→</span>
-          <span>Agent replies in Korean → Auto-translated to English</span>
-        </div>
-      </div>
+          {/* Auto-translated to Korean tag */}
+          <div
+            className="flex justify-end"
+            style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.3s' }}
+          >
+            <span className="text-[10px] font-medium" style={{ color: 'rgba(52,199,89,0.9)' }}>
+              🌐 Auto-translated to Korean
+            </span>
+          </div>
 
-      {/* English translation */}
-      <div style={{ opacity: step >= 4 ? 1 : 0, transition: 'opacity 0.35s' }}>
-        <div
-          className="rounded-xl px-3 py-2 text-sm text-white"
-          style={{ background: 'rgba(59,130,246,0.22)', border: '1px solid rgba(59,130,246,0.30)' }}
-        >
-          Yes, still available! How about a visit this week?
+          {/* Spacer keeps layout stable while dots / message swap */}
+          <div className="flex justify-start" style={{ minHeight: 36 }}>
+            {step === 2 && (
+              <div
+                className="flex items-center gap-1 px-4 py-3"
+                style={{ background: '#2c2c2e', borderRadius: '18px 18px 18px 4px' }}
+              >
+                {[0, 1, 2].map(i => (
+                  <span
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full inline-block"
+                    style={{
+                      background: 'rgba(255,255,255,0.45)',
+                      animation: `dotBounce 0.9s ease-in-out ${i * 0.15}s infinite`,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            {step >= 3 && (
+              <div
+                className="text-white text-sm px-3 py-2"
+                style={{ background: '#2c2c2e', borderRadius: '18px 18px 18px 4px', maxWidth: '85%' }}
+              >
+                네, 가능합니다! 이번 주 방문 어떠세요?
+              </div>
+            )}
+          </div>
+
+          {/* Auto-translated to English tag */}
+          <div
+            className="flex justify-start"
+            style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.3s' }}
+          >
+            <span className="text-[10px] font-medium" style={{ color: 'rgba(52,199,89,0.9)' }}>
+              🌐 Auto-translated to English
+            </span>
+          </div>
+
+          {/* English reply → right, blue */}
+          <div
+            className="flex justify-end"
+            style={{ opacity: step >= 4 ? 1 : 0, transition: 'opacity 0.3s' }}
+          >
+            <div
+              className="text-white text-sm px-3 py-2"
+              style={{ background: '#0a84ff', borderRadius: '18px 18px 4px 18px', maxWidth: '85%' }}
+            >
+              Yes! How about a visit this week?
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
+    </>
   )
 }
