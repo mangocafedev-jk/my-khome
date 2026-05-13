@@ -10,6 +10,14 @@ interface AddressAutocompleteProps {
   className?: string
 }
 
+// Global callback registry so multiple components can share one script load
+declare global {
+  interface Window {
+    __gmapsCallbacks?: (() => void)[]
+    __gmapsReady?: () => void
+  }
+}
+
 export default function AddressAutocomplete({
   value,
   onChange,
@@ -28,40 +36,52 @@ export default function AddressAutocomplete({
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     if (!apiKey || !inputRef.current) return
 
-    function init() {
+    function initAutocomplete() {
       if (!inputRef.current || !window.google?.maps?.places) return
       const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
         componentRestrictions: { country: 'kr' },
         fields: ['formatted_address'],
-        types: ['address'],
+        // No types restriction: 'address' excludes many Korean address formats;
+        // letting Google return all geocode results gives best coverage.
       })
       ac.addListener('place_changed', () => {
         const place = ac.getPlace()
         const addr = place.formatted_address ?? ''
         if (!addr) return
-        // Immediately sync DOM value so React's controlled input shows formatted_address
         if (inputRef.current) inputRef.current.value = addr
-        onChangeRef.current(addr)       // update React state (value prop)
-        onPlaceSelectRef.current(addr)  // trigger geocoding in parent
+        onChangeRef.current(addr)
+        onPlaceSelectRef.current(addr)
       })
     }
 
+    // Already loaded
     if (window.google?.maps?.places) {
-      init()
-    } else {
-      const existing = document.getElementById('gmaps-script')
-      if (!existing) {
-        const script = document.createElement('script')
-        script.id = 'gmaps-script'
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=ko&region=KR`
-        script.async = true
-        script.defer = true
-        script.onload = init
-        document.head.appendChild(script)
-      } else {
-        existing.addEventListener('load', init)
+      initAutocomplete()
+      return
+    }
+
+    // Queue callback — supports multiple components waiting on same script
+    if (!window.__gmapsCallbacks) window.__gmapsCallbacks = []
+    window.__gmapsCallbacks.push(initAutocomplete)
+
+    if (!window.__gmapsReady) {
+      window.__gmapsReady = () => {
+        window.__gmapsCallbacks?.forEach(cb => cb())
+        window.__gmapsCallbacks = []
       }
     }
+
+    if (!document.getElementById('gmaps-script')) {
+      const script = document.createElement('script')
+      script.id = 'gmaps-script'
+      // callback= is the reliable trigger; async without defer lets it run immediately
+      script.src =
+        `https://maps.googleapis.com/maps/api/js` +
+        `?key=${apiKey}&libraries=places&language=ko&region=KR&callback=__gmapsReady`
+      script.async = true
+      document.head.appendChild(script)
+    }
+    // If script tag exists but Places not ready yet, our callback is already queued above
   }, [])
 
   return (

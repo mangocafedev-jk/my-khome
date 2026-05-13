@@ -100,17 +100,24 @@ export default function ListingMap({
     if (window.google?.maps) {
       initMap()
     } else {
-      const existing = document.getElementById('gmaps-script')
-      if (!existing) {
+      if (!window.__gmapsCallbacks) window.__gmapsCallbacks = []
+      window.__gmapsCallbacks.push(initMap)
+
+      if (!window.__gmapsReady) {
+        window.__gmapsReady = () => {
+          window.__gmapsCallbacks?.forEach(cb => cb())
+          window.__gmapsCallbacks = []
+        }
+      }
+
+      if (!document.getElementById('gmaps-script')) {
         const script = document.createElement('script')
         script.id = 'gmaps-script'
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=en&region=US`
+        script.src =
+          `https://maps.googleapis.com/maps/api/js` +
+          `?key=${apiKey}&libraries=places&language=en&region=US&callback=__gmapsReady`
         script.async = true
-        script.defer = true
-        script.onload = initMap
         document.head.appendChild(script)
-      } else {
-        existing.addEventListener('load', initMap)
       }
     }
   }, [lat, lng, stationLat, stationLng, walkingMinutes])
