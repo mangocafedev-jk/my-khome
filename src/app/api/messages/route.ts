@@ -46,12 +46,10 @@ export async function POST(request: NextRequest) {
     console.error('[messages POST] DeepL translation failed, storing English as fallback:', err)
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('messages')
     .insert({ listing_id, sender_name, sender_contact, content_en, content_kr, is_read: false })
-    .select()
-    .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+  return NextResponse.json({ ok: true }, { status: 201 })
 }
