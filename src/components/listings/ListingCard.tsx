@@ -66,10 +66,15 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         )}
 
         {/* Center: Title */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4 text-center">
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4 flex justify-center">
           <h3
             className="text-white font-semibold text-sm sm:text-base leading-snug line-clamp-1"
-            style={{ textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}
+            style={{
+              background: 'rgba(0,0,0,0.55)',
+              backdropFilter: 'blur(4px)',
+              padding: '6px 12px',
+              borderRadius: '6px',
+            }}
           >
             {title}
           </h3>
