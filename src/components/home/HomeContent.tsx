@@ -1,32 +1,43 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import type { Listing, ListingType, ContractType } from '@/types'
+import type { Listing } from '@/types'
 import ListingGrid from '@/components/listings/ListingGrid'
 
-const TYPE_OPTS: { value: ListingType | 'all'; label: string }[] = [
-  { value: 'all',  label: 'All Types' },
-  { value: '월세', label: 'Monthly Rent' },
-  { value: '전세', label: 'Jeonse' },
-  { value: '매매', label: 'For Sale' },
-]
-
-const CONTRACT_OPTS: { value: ContractType | 'all'; label: string }[] = [
-  { value: 'all',  label: 'Any Duration' },
-  { value: '단기', label: 'Short-term' },
-  { value: '장기', label: 'Long-term' },
+const PRICE_OPTS = [
+  { value: 'all',  label: 'All Prices' },
+  { value: 'u500', label: 'Under ₩500K' },
+  { value: 'u1m',  label: 'Under ₩1M' },
+  { value: 'u2m',  label: 'Under ₩2M' },
+  { value: '2m+',  label: '₩2M+' },
 ]
 
 const selectClass =
   'w-full appearance-none text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl px-3 py-2.5 pr-8 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-colors hover:border-gray-300'
 
+function matchesPrice(price: number, filter: string): boolean {
+  // price is in 만원 units (e.g. 50 = 50만원, 100 = 100만원)
+  switch (filter) {
+    case 'u500': return price < 50   // under 50만원 = under ₩500K
+    case 'u1m':  return price < 100  // under 100만원 = under ₩1M
+    case 'u2m':  return price < 200  // under 200만원 = under ₩2M
+    case '2m+':  return price >= 200
+    default:     return true
+  }
+}
+
 export default function HomeContent({ listings }: { listings: Listing[] }) {
-  const [district, setDistrict] = useState('all')
-  const [type, setType] = useState<ListingType | 'all'>('all')
-  const [contract, setContract] = useState<ContractType | 'all'>('all')
+  const [district, setDistrict]   = useState('all')
+  const [station, setStation]     = useState('all')
+  const [price, setPrice]         = useState('all')
 
   const districts = useMemo(
     () => [...new Set(listings.map(l => l.district).filter(Boolean))].sort(),
+    [listings]
+  )
+
+  const stations = useMemo(
+    () => [...new Set(listings.map(l => l.subway_station).filter(Boolean))].sort(),
     [listings]
   )
 
@@ -34,14 +45,14 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
     () =>
       listings.filter(l => {
         if (district !== 'all' && l.district !== district) return false
-        if (type !== 'all' && l.type !== type) return false
-        if (contract !== 'all' && l.contract !== contract) return false
+        if (station  !== 'all' && l.subway_station !== station) return false
+        if (!matchesPrice(l.price, price)) return false
         return true
       }),
-    [listings, district, type, contract]
+    [listings, district, station, price]
   )
 
-  const activeCount = [type !== 'all', contract !== 'all', district !== 'all'].filter(Boolean).length
+  const activeCount = [district !== 'all', station !== 'all', price !== 'all'].filter(Boolean).length
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -49,45 +60,28 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
       <div id="listings" className="mb-10 p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
         <div className="grid grid-cols-3 gap-2.5">
 
-          {/* Type */}
-          <div className="relative">
-            <select
-              value={type}
-              onChange={e => setType(e.target.value as ListingType | 'all')}
-              className={selectClass}
-            >
-              {TYPE_OPTS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-            <ChevronIcon />
-          </div>
-
-          {/* Contract */}
-          <div className="relative">
-            <select
-              value={contract}
-              onChange={e => setContract(e.target.value as ContractType | 'all')}
-              className={selectClass}
-            >
-              {CONTRACT_OPTS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-            <ChevronIcon />
-          </div>
-
           {/* District */}
           <div className="relative">
-            <select
-              value={district}
-              onChange={e => setDistrict(e.target.value)}
-              className={selectClass}
-            >
+            <select value={district} onChange={e => setDistrict(e.target.value)} className={selectClass}>
               <option value="all">All Districts</option>
-              {districts.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
+              {districts.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <ChevronIcon />
+          </div>
+
+          {/* Subway Station */}
+          <div className="relative">
+            <select value={station} onChange={e => setStation(e.target.value)} className={selectClass}>
+              <option value="all">All Stations</option>
+              {stations.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <ChevronIcon />
+          </div>
+
+          {/* Price */}
+          <div className="relative">
+            <select value={price} onChange={e => setPrice(e.target.value)} className={selectClass}>
+              {PRICE_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
             <ChevronIcon />
           </div>
@@ -99,7 +93,7 @@ export default function HomeContent({ listings }: { listings: Listing[] }) {
           <div className="mt-3 flex items-center gap-2">
             <span className="text-xs text-gray-400">{activeCount} filter{activeCount > 1 ? 's' : ''} active</span>
             <button
-              onClick={() => { setType('all'); setContract('all'); setDistrict('all') }}
+              onClick={() => { setDistrict('all'); setStation('all'); setPrice('all') }}
               className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors"
             >
               Clear all
