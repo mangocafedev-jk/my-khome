@@ -241,122 +241,146 @@ export default function Hero() {
 // iMessage translation demo
 // ---------------------------------------------------------------------------
 
-type DemoStep = 0 | 1 | 2 | 3 | 4 | 5
+const DEMO_MSGS = [
+  {
+    side: 'right' as const,
+    text: 'Is this apartment still available?',
+    transLabel: '🌐 Korean',
+    translation: '이 아파트 아직 가능한가요?',
+  },
+  {
+    side: 'left' as const,
+    text: '네, 가능합니다! 이번 주말 2시 보러 오실래요?',
+    transLabel: '🌐 English',
+    translation: 'Yes! Would you like to come see it this weekend at 2pm?',
+  },
+  {
+    side: 'right' as const,
+    text: 'Perfect! See you at 2pm! 🙌',
+    transLabel: '🌐 Korean',
+    translation: '완벽해요! 2시에 봬요! 🙌',
+  },
+]
+
+type MsgState = { typedLen: number; showTrans: boolean }
+const blank = (): MsgState[] => DEMO_MSGS.map(() => ({ typedLen: 0, showTrans: false }))
+const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms))
 
 function TranslationDemo() {
-  const [step, setStep] = useState<DemoStep>(0)
+  const [visible, setVisible] = useState(0)          // how many bubbles are rendered
+  const [states, setStates] = useState<MsgState[]>(blank)
 
   useEffect(() => {
-    const durations = [1200, 600, 1300, 700, 700, 3000]
-    let current = 0
-    let timer: ReturnType<typeof setTimeout>
+    let cancelled = false
 
-    function tick() {
-      current = (current + 1) % 6
-      setStep(current as DemoStep)
-      timer = setTimeout(tick, durations[current])
+    async function run() {
+      while (!cancelled) {
+        setVisible(0)
+        setStates(blank())
+        await wait(500)
+
+        for (let i = 0; i < DEMO_MSGS.length; i++) {
+          if (cancelled) return
+          setVisible(i + 1)
+
+          // char-by-char typing (handle multi-byte chars / emoji with Array.from)
+          const chars = Array.from(DEMO_MSGS[i].text)
+          for (let c = 1; c <= chars.length; c++) {
+            if (cancelled) return
+            await wait(42)
+            setStates(prev => prev.map((s, j) => j === i ? { ...s, typedLen: c } : s))
+          }
+
+          await wait(320)
+          if (cancelled) return
+
+          // fade in translation
+          setStates(prev => prev.map((s, j) => j === i ? { ...s, showTrans: true } : s))
+          await wait(950)
+        }
+
+        // pause with all messages visible
+        await wait(3000)
+      }
     }
 
-    timer = setTimeout(tick, durations[0])
-    return () => clearTimeout(timer)
+    run()
+    return () => { cancelled = true }
   }, [])
 
   return (
-    <>
-      <style>{`
-        @keyframes dotBounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30%            { transform: translateY(-5px); }
-        }
-      `}</style>
+    <div
+      className="w-full max-w-[272px] sm:max-w-xs text-left"
+      style={{
+        background: '#1c1c1e',
+        borderRadius: '32px',
+        border: '1px solid rgba(255,255,255,0.15)',
+        padding: '16px',
+      }}
+    >
+      {/* Header */}
       <div
-        className="w-full max-w-[272px] sm:max-w-xs text-left"
-        style={{
-          background: '#1c1c1e',
-          borderRadius: '32px',
-          border: '1px solid rgba(255,255,255,0.15)',
-          padding: '16px',
-        }}
+        className="flex flex-col items-center mb-3 pb-3"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
       >
-        {/* Header */}
         <div
-          className="flex flex-col items-center mb-3 pb-3"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-lg mb-1"
+          style={{ background: 'rgba(10,132,255,0.25)', border: '1px solid rgba(10,132,255,0.4)' }}
         >
-          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-base mb-1">🏢</div>
-          <p className="text-white font-semibold text-sm leading-tight">Korean Agent</p>
-          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.38)' }}>via MyKHome</p>
+          🌐
         </div>
-
-        {/* Messages */}
-        <div className="space-y-1">
-
-          {/* Renter → right, blue */}
-          <div className="flex justify-end">
-            <div
-              className="text-white text-sm px-3 py-2"
-              style={{ background: '#0a84ff', borderRadius: '18px 18px 4px 18px', maxWidth: '85%' }}
-            >
-              Is this still available?
-              {step === 0 && <span className="ml-0.5 animate-pulse">|</span>}
-            </div>
-          </div>
-
-          {/* Auto-translated to Korean */}
-          <div className="flex justify-end" style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.3s' }}>
-            <span className="text-[10px] font-medium" style={{ color: 'rgba(52,199,89,0.9)' }}>
-              🌐 Auto-translated to Korean
-            </span>
-          </div>
-
-          {/* Agent typing dots or message */}
-          <div className="flex justify-start" style={{ minHeight: 36 }}>
-            {step === 2 && (
-              <div
-                className="flex items-center gap-1 px-4 py-3"
-                style={{ background: '#2c2c2e', borderRadius: '18px 18px 18px 4px' }}
-              >
-                {[0, 1, 2].map(i => (
-                  <span
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full inline-block"
-                    style={{
-                      background: 'rgba(255,255,255,0.45)',
-                      animation: `dotBounce 0.9s ease-in-out ${i * 0.15}s infinite`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-            {step >= 3 && (
-              <div
-                className="text-white text-sm px-3 py-2"
-                style={{ background: '#2c2c2e', borderRadius: '18px 18px 18px 4px', maxWidth: '85%' }}
-              >
-                네, 가능합니다! 이번 주 방문 어떠세요?
-              </div>
-            )}
-          </div>
-
-          {/* Auto-translated to English */}
-          <div className="flex justify-start" style={{ opacity: step >= 3 ? 1 : 0, transition: 'opacity 0.3s' }}>
-            <span className="text-[10px] font-medium" style={{ color: 'rgba(52,199,89,0.9)' }}>
-              🌐 Auto-translated to English
-            </span>
-          </div>
-
-          {/* English reply → right, blue */}
-          <div className="flex justify-end" style={{ opacity: step >= 4 ? 1 : 0, transition: 'opacity 0.3s' }}>
-            <div
-              className="text-white text-sm px-3 py-2"
-              style={{ background: '#0a84ff', borderRadius: '18px 18px 4px 18px', maxWidth: '85%' }}
-            >
-              Yes! How about a visit this week?
-            </div>
-          </div>
-
-        </div>
+        <p className="text-white font-semibold text-sm leading-tight">Auto Translation</p>
+        <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+          Korean ↔ English · Powered by MyKHome
+        </p>
       </div>
-    </>
+
+      {/* Messages */}
+      <div className="space-y-1.5">
+        {DEMO_MSGS.map((msg, i) => {
+          if (i >= visible) return null
+          const s = states[i]
+          const chars = Array.from(msg.text)
+          const displayed = chars.slice(0, s.typedLen).join('')
+          const typing = s.typedLen < chars.length
+          const isRight = msg.side === 'right'
+
+          return (
+            <div key={i} className="space-y-0.5">
+              {/* Bubble */}
+              <div className={`flex ${isRight ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  className="text-white text-sm px-3 py-2 leading-snug"
+                  style={{
+                    background: isRight ? '#0a84ff' : '#2c2c2e',
+                    borderRadius: isRight ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                    maxWidth: '88%',
+                  }}
+                >
+                  {displayed}
+                  {typing && <span className="animate-pulse ml-0.5">|</span>}
+                </div>
+              </div>
+
+              {/* Translation tag */}
+              <div
+                className={`flex ${isRight ? 'justify-end' : 'justify-start'}`}
+                style={{ opacity: s.showTrans ? 1 : 0, transition: 'opacity 0.4s ease' }}
+              >
+                <span
+                  className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                  style={{
+                    color: 'rgba(52,199,89,1)',
+                    background: 'rgba(52,199,89,0.12)',
+                  }}
+                >
+                  {msg.transLabel}: {msg.translation}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
