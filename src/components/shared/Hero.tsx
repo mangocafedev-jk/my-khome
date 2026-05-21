@@ -43,7 +43,7 @@ function HeroSlideshow({
       ))}
 
       {/* Dark overlay */}
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.55)' }} />
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
 
       {/* Dot navigation */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2" style={{ zIndex: 25 }}>
