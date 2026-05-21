@@ -8,10 +8,10 @@ import Image from 'next/image'
 // ---------------------------------------------------------------------------
 
 const HERO_IMAGES = [
-  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-1.jpg',
-  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-2.jpg',
-  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-3.jpg',
-  'https://ofegfzioxecawoyeucbo.supabase.co/storage/v1/object/public/hero-images/khome-hero-4.jpg',
+  'https://bzwnjnkkzdrvluwubtjv.supabase.co/storage/v1/object/public/hero-images/dearkfriend-hero-1.jpg',
+  'https://bzwnjnkkzdrvluwubtjv.supabase.co/storage/v1/object/public/hero-images/dearkfriend-hero-2.jpg',
+  'https://bzwnjnkkzdrvluwubtjv.supabase.co/storage/v1/object/public/hero-images/dearkfriend-hero-3.jpg',
+  'https://bzwnjnkkzdrvluwubtjv.supabase.co/storage/v1/object/public/hero-images/dearkfriend-hero-4.jpg',
 ]
 
 function HeroSlideshow({
